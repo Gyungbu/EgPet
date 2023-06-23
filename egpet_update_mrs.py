@@ -1,6 +1,6 @@
 ##<Usage: python Script.py {path_exp}>
-### ex) python comp_update_mrs.py "/home/kbkim/comp_animal_disease/input/PDmirror_output_dog_1629.csv"
-### ex) python comp_update_mrs.py "/home/kbkim/comp_animal_disease/input/PCmirror_output_cat_1520.csv"
+### ex) python egpet_update_mrs.py "/home/kbkim/EgPet/input/PDmirror_output_dog_1629.csv"
+### ex) python egpet_update_mrs.py "/home/kbkim/EgPet/input/PCmirror_output_cat_1520.csv"
 
 import os, datetime
 import pandas as pd
@@ -14,8 +14,8 @@ from skbio.stats.composition import multiplicative_replacement, clr
 # Check if the script is being called with the correct arguments
 if len(sys.argv) < 2:
     print("Usage: python Script.py <path_exp>")
-    print("Example: python comp_update_mrs.py \"/home/kbkim/comp_animal_disease/input/mirror_output_dog_1340.csv\"")
-    print("Example: python comp_update_mrs.py \"/home/kbkim/comp_animal_disease/input/mirror_output_cat_1409.csv\"")
+    print("Example: python egpet_update_mrs.py \"/home/kbkim/EgPet/input/PDmirror_output_dog_1629.csv\"")
+    print("Example: python egpet_update_mrs.py \"/home/kbkim/EgPet/input/PCmirror_output_cat_1520.csv\"")
     sys.exit(1)
     
 # path_exp : Path of Merged Proportion file to analyze
@@ -59,10 +59,10 @@ def save_histograms_to_file(df, filename):
 ###################################
 # MainClass
 ###################################
-class CompAnimalDiseaseUpdateMRS:
+class EgPetUpdateMRS:
     def __init__(self, path_exp, fplog=None):
         """
-        Initializes a CompAnimalDiseaseUpdateMRS object.
+        Initializes a EgPetUpdateMRS object.
 
         Parameters:
         path_exp (str): Path of Merged Proportion file to analyze.  
@@ -74,13 +74,13 @@ class CompAnimalDiseaseUpdateMRS:
         
         if self.species in ['dog', 'cat']:  
             curdir = os.path.abspath('')
-            self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.xlsx"
-            self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.xlsx"
-            self.path_db = f"{curdir}/input/db_abundance_{self.species}.xlsx"
-            self.path_mrs_db = f"{curdir}/input/comp_mrs_db_{self.species}.xlsx"
+            self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
+            self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.csv"
+            self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
+            self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
             self.path_hist = f"{curdir}/output/mrs_hist_{self.species}.png"
-            self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.xlsx"
-            self.path_percentile_rank_db = f"{curdir}/input/comp_percentile_rank_db_{self.species}.csv"
+            self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.csv"
+            self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
 
             self.df_beta = None
             self.df_db = None
@@ -119,11 +119,11 @@ class CompAnimalDiseaseUpdateMRS:
         rvmsg = "Success"
         
         try:       
-            self.df_beta = pd.read_excel(self.path_beta)
-            self.df_dysbiosis = pd.read_excel(self.path_dysbiosis)
-            self.df_healthy = pd.read_excel(self.path_healthy)
-            self.df_db = pd.read_excel(self.path_db)
-            self.df_exp = pd.read_csv(self.path_exp)
+            self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
+            self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
+            self.df_healthy = pd.read_csv(self.path_healthy, encoding='cp949')
+            self.df_db = pd.read_csv(self.path_db, encoding='cp949')
+            self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
     
             self.df_beta.rename(columns = {"Disease": "phenotype", "NCBI name": "ncbi_name", "MIrROR name": "microbiome", "Health sign": "beta", "subtract": "microbiome_subtract"}, inplace=True)
             self.df_beta = self.df_beta[["phenotype", "ncbi_name", "microbiome", "beta", "microbiome_subtract"]]
@@ -166,7 +166,7 @@ class CompAnimalDiseaseUpdateMRS:
           
             
             self.df_db_rev = self.df_db.set_index(keys=['taxa'], inplace=False, drop=True)    
-            self.df_db_rev.to_excel(self.path_db)
+            self.df_db_rev.to_csv(self.path_db)
 
             # Delete the diversity, observed rows
             if (list(self.df_exp['taxa'][0:2]) == ['diversity', 'observed']) & (list(self.df_db['taxa'][0:2]) == ['diversity', 'observed']):
@@ -178,6 +178,9 @@ class CompAnimalDiseaseUpdateMRS:
             # li_phenotype : Phenotype list 
             self.li_new_sample_name = list(self.df_exp.columns)[1:]  
             self.li_phenotype = list(dict.fromkeys(self.df_beta['phenotype']))
+            
+            print(self.df_exp)
+            print(self.df_beta)
             
         except Exception as e:
             print(str(e))
@@ -441,7 +444,7 @@ class CompAnimalDiseaseUpdateMRS:
     
     def UpdateMRS(self): 
         """
-        Save the MRS data as an Excel file & Save the histogram as an png file.
+        Save the MRS data as an csv file & Save the histogram as an png file.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -458,7 +461,7 @@ class CompAnimalDiseaseUpdateMRS:
             self.df_percentile_rank.to_csv(self.path_percentile_rank_db, encoding="utf-8-sig", index_label='serial_number')            
             
             # Save the df_mrs
-            self.df_mrs.to_excel(self.path_mrs_db)
+            self.df_mrs.to_csv(self.path_mrs_db)
    
             # Histogram Plot - mrs 
             save_histograms_to_file(self.df_mrs, self.path_hist)    
@@ -477,13 +480,13 @@ class CompAnimalDiseaseUpdateMRS:
 ####################################
 if __name__ == '__main__':
     
-    companimal = CompAnimalDiseaseUpdateMRS(path_exp)
-    companimal.ReadDB()
-    companimal.InsertDataDB()
-    companimal.CalculateMRS()    
-    companimal.CalculateDysbiosis()  
-    companimal.CalculateHealthyDistance()     
-    companimal.CalculatePercentileRank() 
-    companimal.UpdateMRS() 
+    egpetupdatemrs = EgPetUpdateMRS(path_exp)
+    egpetupdatemrs.ReadDB()
+    egpetupdatemrs.InsertDataDB()
+    egpetupdatemrs.CalculateMRS()    
+    egpetupdatemrs.CalculateDysbiosis()  
+    egpetupdatemrs.CalculateHealthyDistance()     
+    egpetupdatemrs.CalculatePercentileRank() 
+    egpetupdatemrs.UpdateMRS() 
     
     print('Update Complete') 

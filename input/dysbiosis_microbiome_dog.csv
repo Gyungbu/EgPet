@@ -1,0 +1,28 @@
+NCBI name,MIrROR name,subtract,Health sign
+Clostridium perfringens,s__Clostridium_perfringens,,유해
+Pseudomonas aeruginosa,s__Pseudomonas_aeruginosa,,유해
+Staphylococcus aureus,s__Staphylococcus_aureus,,유해
+Klebsiella pneumoniae,s__Klebsiella_pneumoniae,,유해
+Escherichia coli,s__Escherichia_coli,,유해
+Escherichia coli,s__Escherichia_flexneri,,유해
+Escherichia coli,s__Escherichia_dysenteriae,,유해
+Clostridioides difficile,s__Clostridioides_difficile,,유해
+Campylobacter jejuni,s__Campylobacter_jejuni,,유해
+Fusobacterium nucleatum,s__Fusobacterium_nucleatum,,유해
+Fusobacterium nucleatum,s__Fusobacterium_vincentii,,유해
+Fusobacterium nucleatum,s__Fusobacterium_animalis,,유해
+Fusobacterium nucleatum,s__Fusobacterium_polymorphum,,유해
+Clostridium botulinum,s__Clostridium_botulinum,,유해
+Clostridium botulinum,s__Clostridium_sporogenes,,유해
+Vibrio vulnificus,s__Vibrio_vulnificus,,유해
+Faecalibacterium prausnitzii,s__Faecalibacterium_prausnitzii,,유익
+Anaerobutyricum hallii (Eubacterium hallii),s__Eubacterium_hallii,,유익
+Lactobacillus fermentum,s__Lactobacillus_fermentum,,유익
+Lactobacillus salivarius,s__Lactobacillus_salivarius,,유익
+Weissella confusa,s__Weissella_confusa,,유익
+Lactobacillus rhamnosus,s__Lactobacillus_rhamnosus,,유익
+Holdemanella biformis ([Eubacterium] biforme),s__Holdemanella_biformis,,유익
+Oxalobacter formigenes,s__Oxalobacter_formigenes,,유익
+Tyzzerella nexilis,s__Tyzzerella_nexilis,,유익
+Bifidobacterium longum,s__Bifidobacterium_longum,,유익
+Bifidobacterium longum,s__Bifidobacterium_infantis,,유익

@@ -35,10 +35,10 @@ def WriteLog(functionname, msg, type='INFO', fplog=None):
 ###################################
 # MainClass
 ###################################
-class CompAnimalDisease:
+class EgPetAnalysis:
     def __init__(self, path_exp, outdir=None, fplog=None):
         """
-        Initializes a CompAnimalDisease object.
+        Initializes a EgPetAnalysis object.
 
         Parameters:
         path_exp (str): Path of Merged Proportion file to analyze.
@@ -57,12 +57,12 @@ class CompAnimalDisease:
 
 
         curdir = os.path.dirname(os.path.abspath(__file__))
-        self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.xlsx"
-        self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.xlsx"
-        self.path_mrs_db = f"{curdir}/input/comp_mrs_db_{self.species}.xlsx"
-        self.path_percentile_rank_db = f"{curdir}/input/comp_percentile_rank_db_{self.species}.csv"
-        self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.xlsx"
-        self.path_db = f"{curdir}/input/db_abundance_{self.species}.xlsx"
+        self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
+        self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.csv"
+        self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
+        self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
+        self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.csv"
+        self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
         
         ###output
         if( outdir is not None ):
@@ -70,13 +70,13 @@ class CompAnimalDisease:
         else:
             self.outdir = f"{curdir}/output"
 
-        #self.path_comp_percentile_rank_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','')}.csv"
-        #self.path_comp_eval_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_eval')}.csv"
-        #self.path_comp_scatterplot_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_scatterplot')}.png"
+        #self.path_egpet_percentile_rank_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','')}.csv"
+        #self.path_egpet_eval_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_eval')}.csv"
+        #self.path_egpet_scatterplot_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_scatterplot')}.png"
         
-        self.path_comp_percentile_rank_output = f"{curdir}/output/comp_percentile_rank_{self.species}.csv"
-        self.path_comp_eval_output = f"{curdir}/output/comp_eval_{self.species}.csv"
-        self.path_comp_scatterplot_output = f"{curdir}/output/comp_scatterplot_{self.species}.png"
+        self.path_egpet_percentile_rank_output = f"{curdir}/output/egpet_percentile_rank_{self.species}.csv"
+        self.path_egpet_eval_output = f"{curdir}/output/egpet_eval_{self.species}.csv"
+        self.path_egpet_scatterplot_output = f"{curdir}/output/egpet_scatterplot_{self.species}.png"
 
         ##ReadDB  에서 읽어들인데이타
         self.df_beta = None
@@ -108,14 +108,14 @@ class CompAnimalDisease:
         rvmsg = "Success"
         
         try:
-            self.df_beta = pd.read_excel(self.path_beta)
-            self.df_dysbiosis = pd.read_excel(self.path_dysbiosis)
-            self.df_healthy = pd.read_excel(self.path_healthy)
-            self.df_exp = pd.read_csv(self.path_exp)
-            self.df_mrs_db = pd.read_excel(self.path_mrs_db, index_col=0) 
-            self.df_exp = pd.read_csv(self.path_exp)
-            self.df_percentile_rank_db = pd.read_csv(self.path_percentile_rank_db)
-            self.df_db = pd.read_excel(self.path_db)
+            self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
+            self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
+            self.df_healthy = pd.read_csv(self.path_healthy, encoding='cp949')
+            self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
+            self.df_mrs_db = pd.read_csv(self.path_mrs_db, index_col=0, encoding='cp949') 
+            self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
+            self.df_percentile_rank_db = pd.read_csv(self.path_percentile_rank_db, encoding='cp949')
+            self.df_db = pd.read_csv(self.path_db, encoding='cp949')
 
             self.df_beta.rename(columns = {"Disease": "phenotype", "NCBI name": "ncbi_name", "MIrROR name": "microbiome", "Health sign": "beta", "subtract": "microbiome_subtract"}, inplace=True)
             self.df_beta = self.df_beta[["phenotype", "ncbi_name", "microbiome", "beta", "microbiome_subtract"]]
@@ -389,7 +389,7 @@ class CompAnimalDisease:
             self.df_percentile_rank = self.df_percentile_rank.fillna('None')
 
             # Save the output file - Percentile Rank of the samples
-            self.df_percentile_rank.to_csv(self.path_comp_percentile_rank_output, encoding="utf-8-sig", index_label='serial_number')
+            self.df_percentile_rank.to_csv(self.path_egpet_percentile_rank_output, encoding="utf-8-sig", index_label='serial_number')
             
         except Exception as e:
             print(str(e))
@@ -460,7 +460,7 @@ class CompAnimalDisease:
             '''
             
             # save the scatter plot
-            plt.savefig(self.path_comp_scatterplot_output , dpi=300, bbox_inches='tight')          
+            plt.savefig(self.path_egpet_scatterplot_output , dpi=300, bbox_inches='tight')          
               
         except Exception as e:
             print(str(e))
@@ -674,7 +674,7 @@ class CompAnimalDisease:
             self.df_eval.loc[:,'beneficial_mean_abundance[%]'] = beneficial_mean_abundance * 100
             
             # Save the output file - df_eval
-            self.df_eval.to_csv(self.path_comp_eval_output, encoding="utf-8-sig", index_label='serial_number')
+            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')
                     
         except Exception as e:
             print(str(e))
@@ -691,21 +691,21 @@ class CompAnimalDisease:
 if __name__ == '__main__':
     
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
-    #path_exp = 'input/PCmirror_output_cat_1520.csv'
+    path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
     
-    companimal = CompAnimalDisease(path_exp)
-    companimal.ReadDB()
-    companimal.CalculateMRS()    
-    companimal.CalculateDysbiosis()    
-    companimal.CalculateHealthyDistance()
-    companimal.CalculatePercentileRank()
-    companimal.DrawScatterPlot()    
-    companimal.EvaluatePercentileRank()    
-    companimal.CalculateMicrobiomeRatio()
-    companimal.CalculateAverageMicrobiomeRatio()
+    egpetanalysis = EgPetAnalysis(path_exp)
+    egpetanalysis.ReadDB()
+    egpetanalysis.CalculateMRS()    
+    egpetanalysis.CalculateDysbiosis()    
+    egpetanalysis.CalculateHealthyDistance()
+    egpetanalysis.CalculatePercentileRank()
+    egpetanalysis.DrawScatterPlot()    
+    egpetanalysis.EvaluatePercentileRank()    
+    egpetanalysis.CalculateMicrobiomeRatio()
+    egpetanalysis.CalculateAverageMicrobiomeRatio()
     
     print('Analysis Complete')
     
