@@ -55,7 +55,7 @@ class EgPetAnalysis:
             print("The species should be dog[PD] or cat[PC]")
             print("Please check the path_exp")
 
-
+        ## Reference csv files
         curdir = os.path.dirname(os.path.abspath(__file__))
         self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
         self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.csv"
@@ -78,7 +78,7 @@ class EgPetAnalysis:
         self.path_egpet_eval_output = f"{curdir}/output/egpet_eval_{self.species}.csv"
         self.path_egpet_scatterplot_output = f"{curdir}/output/egpet_scatterplot_{self.species}.png"
 
-        ##ReadDB  에서 읽어들인데이타
+        ## Dataframes read by the ReadDB process
         self.df_beta = None
         self.df_healthy = None
         self.df_exp = None
@@ -87,10 +87,12 @@ class EgPetAnalysis:
         self.df_percentile_rank_db = None
         self.df_db = None
         
+        ## Dataframes to calculate
         self.df_mrs = None
         self.df_percentile_rank = None
         self.df_eval = None
         
+        ## Lists used for calculation
         self.li_diversity = None
         self.li_observed = None
         self.li_new_sample_name = None
@@ -101,6 +103,13 @@ class EgPetAnalysis:
     # df_beta : Data frame of of Phenotype-Microbiome information
     # df_exp : Data frame of Experimental result information - Abundance    
     def ReadDB(self):
+        """
+        Read the Dataframes.
+
+        Returns:
+        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
+        and message is a string containing a success or error message.
+        """          
         myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
         WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
         
@@ -352,7 +361,7 @@ class EgPetAnalysis:
     
     def CalculatePercentileRank(self):
         """
-        Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
+        Calculate the Percentile Rank and Save the Percentile Rank data as an csv file.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -403,7 +412,7 @@ class EgPetAnalysis:
 
     def DrawScatterPlot(self):
         """
-        Draw a scatter plot using the values of diversity, dysbiosis, and HealthyDistance
+        Draw a scatter plot using the values of Diversity, Dysbiosis, and HealthyDistance
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -473,7 +482,7 @@ class EgPetAnalysis:
     
     def EvaluatePercentileRank(self):
         """
-        Evaluate based on percentile rank value and Save the Evaluation data as an Csv file
+        Evaluate based on percentile rank value and Save the Evaluation data as an csv file
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -524,7 +533,8 @@ class EgPetAnalysis:
        
     def CalculateMicrobiomeRatio(self): 
         """
-        Calculate the Beneficial Microbiome Ratio & Harmful Microbiome Ratio
+        Calculate the Beneficial Microbiome Ratio & Harmful Microbiome Ratio 
+        Calculate the Number of Beneficial & Harmful Microbiome
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -594,13 +604,13 @@ class EgPetAnalysis:
                             
                 self.df_eval.loc[self.li_new_sample_name[i], 'harmful_abundance[%]'] = harmful_abundance * 100
                 self.df_eval.loc[self.li_new_sample_name[i], 'beneficial_abundance[%]'] = beneficial_abundance * 100
-                self.df_eval.loc[self.li_new_sample_name[i], 'other_abundance[%]'] = 100 - 100 * (harmful_abundance + beneficial_abundance)
+                #self.df_eval.loc[self.li_new_sample_name[i], 'other_abundance[%]'] = 100 - 100 * (harmful_abundance + beneficial_abundance)
                 
                 self.df_eval.loc[self.li_new_sample_name[i], 'num_harmful_species'] = harmful_number
                 self.df_eval.loc[self.li_new_sample_name[i], 'num_beneficial_species'] = beneficial_number
 
-                self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
-                self.df_eval.loc[self.li_new_sample_name[i], 'num_other_species'] = self.li_observed[i] - harmful_number - beneficial_number
+                #self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
+                #self.df_eval.loc[self.li_new_sample_name[i], 'num_other_species'] = self.li_observed[i] - harmful_number - beneficial_number
                               
         except Exception as e:
             print(str(e))
@@ -691,10 +701,10 @@ class EgPetAnalysis:
 if __name__ == '__main__':
     
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
-    path_exp = 'input/PCmirror_output_cat_1520.csv'
+    #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
     #path_exp = 'input/PD_dog_one_sample.csv'
-    #path_exp = 'input/PC_cat_one_sample.csv'
+    path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()

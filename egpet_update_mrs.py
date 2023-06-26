@@ -106,7 +106,7 @@ class EgPetUpdateMRS:
     # df_exp : Data frame of Experimental result information - Abundance    
     def ReadDB(self):   
         """
-        Read the data.
+        Read the Dataframes.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -397,7 +397,7 @@ class EgPetUpdateMRS:
 
     def CalculatePercentileRank(self):
         """
-        Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
+        Calculate the Percentile Rank and Save the Percentile Rank data as an csv file.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
