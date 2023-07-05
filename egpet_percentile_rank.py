@@ -361,7 +361,7 @@ class EgPetAnalysis:
     
     def CalculatePercentileRank(self):
         """
-        Calculate the Percentile Rank and Save the Percentile Rank data as an csv file.
+        Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -383,14 +383,16 @@ class EgPetAnalysis:
             for i in range(len(self.li_new_sample_name)):
                 for j in range(len(self.li_phenotype)):
                     self.df_percentile_rank.loc[self.li_new_sample_name[i], self.li_phenotype[j]] = (percentileofscore(list(self.df_mrs_db[self.li_phenotype[j]]), self.df_mrs.loc[self.li_new_sample_name[i], self.li_phenotype[j]], kind='mean')).round(1)
-                 
+                    
             # Outliers
             # Replace percentile ranks that are less than or equal to 5 with 5, and those that are greater than or equal to 95 with 95
             for i in range(len(self.li_phenotype)):
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0      
-                
-            self.df_percentile_rank['TotalScore'] = (self.df_percentile_rank['Dysbiosis']*1.1 + self.df_percentile_rank['HealthyDistance']*1.1 + self.df_percentile_rank['Diversity']*0.8)/3
+            
+            self.df_percentile_rank['DiseaseMeanScore'] = self.df_percentile_rank.iloc[:,:-3].mean(axis=1, skipna=True, numeric_only=False)
+            
+            self.df_percentile_rank['TotalScore'] = (self.df_percentile_rank['Dysbiosis']*1.1 + self.df_percentile_rank['DiseaseMeanScore']*1.1 + self.df_percentile_rank['Diversity']*0.8)/3
             
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['TotalScore'].astype(float).round(1)
                         
@@ -412,7 +414,7 @@ class EgPetAnalysis:
 
     def DrawScatterPlot(self):
         """
-        Draw a scatter plot using the values of Diversity, Dysbiosis, and HealthyDistance
+        Draw a scatter plot using the values of diversity, dysbiosis, and HealthyDistance
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -427,7 +429,7 @@ class EgPetAnalysis:
         try:  
             '''
             #create regplot
-            p = sns.regplot(data=self.df_percentile_rank_db, x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2)
+            p = sns.regplot(data=self.df_percentile_rank_db, x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2)
 
             #calculate slope and intercept of regression equation
             slope, intercept, r, p, sterr = scipy.stats.linregress(x=p.get_lines()[0].get_xdata(),
@@ -437,24 +439,24 @@ class EgPetAnalysis:
             x_vals = np.linspace(start=self.df_percentile_rank_db['Diversity'].min(), stop=self.df_percentile_rank_db['Diversity'].max(), num=100)
             y_vals = intercept + slope * x_vals                   
             '''
-            sns.scatterplot(x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2, hue = self.df_percentile_rank_db['TotalScore'] , data=self.df_percentile_rank_db)
+            sns.scatterplot(x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2, hue = self.df_percentile_rank_db['TotalScore'] , data=self.df_percentile_rank_db)
             
             # add new points to the scatter plot
-            sns.scatterplot(x=self.df_percentile_rank['Diversity'], y=(self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['HealthyDistance'])/2, data=self.df_percentile_rank, color='g')            
+            sns.scatterplot(x=self.df_percentile_rank['Diversity'], y=(self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2, data=self.df_percentile_rank, color='g')            
             
             #plt.plot(x_vals, y_vals, '--', color='lightgray', label=f'y = {slope:.2f}x + {intercept:.2f}')
             plt.xlabel('DiversityScore')
-            plt.ylabel('avg(DysbiosisScore, HealthSimilarityScore)')
+            plt.ylabel('avg(DysbiosisScore, DiseaseMeanScore)')
             plt.legend()
                                  
             plt.axhline(y=60/1.1, xmin=0, xmax=1, color='red', linestyle='--')    
             plt.axvline(x=60/0.8, ymin=0, ymax=1, color='red', linestyle='--')
             
             '''
-            E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2 >= 60/1.1)]
-            B_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2 >= 60/1.1)]
-            D_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2 < 60/1.1)]
-            I_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['HealthyDistance'])/2 < 60/1.1)]
+            E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 >= 60/1.1)]
+            B_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 >= 60/1.1)]
+            D_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 < 60/1.1)]
+            I_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 < 60/1.1)]
 
             E_percent = len(E_data) / len(self.df_percentile_rank_db) * 100
             B_percent = len(B_data) / len(self.df_percentile_rank_db) * 100
@@ -478,11 +480,11 @@ class EgPetAnalysis:
             print(f"Error has occurred in the {myNAME} process")    
             sys.exit()
     
-        return rv, rvmsg    
+        return rv, rvmsg
     
     def EvaluatePercentileRank(self):
         """
-        Evaluate based on percentile rank value and Save the Evaluation data as an csv file
+        Evaluate based on percentile rank value and Save the Evaluation data as an Csv file
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -513,10 +515,10 @@ class EgPetAnalysis:
 
             # Type E, B, I, D
             conditions = [
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['HealthyDistance'])/2 >= 60/1.1),
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['HealthyDistance'])/2 >= 60/1.1),
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['HealthyDistance'])/2 < 60/1.1),
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['HealthyDistance'])/2 < 60/1.1)
+                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 >= 60/1.1),
+                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 >= 60/1.1),
+                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 < 60/1.1),
+                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 < 60/1.1)
             ]
             values = ['E', 'B', 'I', 'D']
 
@@ -529,7 +531,7 @@ class EgPetAnalysis:
             print(f"Error has occurred in the {myNAME} process")    
             sys.exit()
     
-        return rv, rvmsg    
+        return rv, rvmsg        
        
     def CalculateMicrobiomeRatio(self): 
         """
@@ -694,17 +696,41 @@ class EgPetAnalysis:
             sys.exit()
             
         return rv, rvmsg      
-    
+
+    def CalculatePearsonCorrelation(self): 
+        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
+        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
+
+        rv = True
+        rvmsg = "Success"
+
+        try:     
+            li_corr_var = ['Dysbiosis', 'HealthyDistance', 'Diversity']
+
+            for corr_var in li_corr_var:           
+                for idx in range(len(self.li_phenotype)):
+                    res = pearsonr(list(self.df_mrs[self.li_phenotype[idx]]), list(self.df_mrs[corr_var]))
+                    print(corr_var, '--', self.li_phenotype[idx], res)
+
+
+        except Exception as e:
+            print(str(e))
+            rv = False
+            rvmsg = str(e)
+            print("Error has occurred in the CalculatePearsonCorrelation process")
+            sys.exit()
+
+        return rv, rvmsg      
 ####################################
 # main
 ####################################
 if __name__ == '__main__':
     
-    #path_exp = 'input/PDmirror_output_dog_1629.csv'
+    path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
     #path_exp = 'input/PD_dog_one_sample.csv'
-    path_exp = 'input/PC_cat_one_sample.csv'
+    #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
@@ -716,6 +742,7 @@ if __name__ == '__main__':
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateMicrobiomeRatio()
     egpetanalysis.CalculateAverageMicrobiomeRatio()
+    #egpetanalysis.CalculatePearsonCorrelation()
     
     print('Analysis Complete')
     

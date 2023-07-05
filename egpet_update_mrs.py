@@ -397,7 +397,7 @@ class EgPetUpdateMRS:
 
     def CalculatePercentileRank(self):
         """
-        Calculate the Percentile Rank and Save the Percentile Rank data as an csv file.
+        Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -425,8 +425,10 @@ class EgPetUpdateMRS:
             for i in range(len(self.li_phenotype)):
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0      
-                
-            self.df_percentile_rank['TotalScore'] = (self.df_percentile_rank['Dysbiosis']*1.1 + self.df_percentile_rank['HealthyDistance']*1.1 + self.df_percentile_rank['Diversity']*0.8)/3
+            
+            self.df_percentile_rank['DiseaseMeanScore'] = self.df_percentile_rank.iloc[:,:-3].mean(axis=1, skipna=True, numeric_only=False)
+            
+            self.df_percentile_rank['TotalScore'] = (self.df_percentile_rank['Dysbiosis']*1.1 + self.df_percentile_rank['DiseaseMeanScore']*1.1 + self.df_percentile_rank['Diversity']*0.8)/3
             
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['TotalScore'].astype(float).round(1)
                        
