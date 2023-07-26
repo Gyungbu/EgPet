@@ -305,7 +305,7 @@ class EgPetAnalysis:
         try:      
             self.df_mrs['Diversity'] = self.li_diversity
             
-            # Append the Dysbiosis, HealthyDistance, Diversity, TotalRiskScore to phenotype list
+            # Append the Dysbiosis, Diversity to phenotype list
             self.li_phenotype += ['Dysbiosis', 'Diversity']
 
             # Create an empty data frame with the same index and columns as the df_mrs data frame
@@ -379,8 +379,8 @@ class EgPetAnalysis:
             plt.ylabel('DysbiosisScore')
             plt.legend()
                                  
-            plt.axhline(y=60/1.1, xmin=0, xmax=1, color='red', linestyle='--')    
-            plt.axvline(x=60/0.8, ymin=0, ymax=1, color='red', linestyle='--')
+            plt.axhline(y=60, xmin=0, xmax=1, color='red', linestyle='--')    
+            plt.axvline(x=60, ymin=0, ymax=1, color='red', linestyle='--')
             
             '''
             E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] >= 60/1.1)]
@@ -445,13 +445,13 @@ class EgPetAnalysis:
 
             # Type E, B, I, D
             conditions = [
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & (self.df_percentile_rank['Dysbiosis'] >= 60/1.1),
+                (self.df_percentile_rank['Diversity'] >= 60) & (self.df_percentile_rank['Dysbiosis'] >= 60),
                 
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & (self.df_percentile_rank['Dysbiosis'] >= 60/1.1),
+                (self.df_percentile_rank['Diversity'] < 60) & (self.df_percentile_rank['Dysbiosis'] >= 60),
                 
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & (self.df_percentile_rank['Dysbiosis'] < 60/1.1),
+                (self.df_percentile_rank['Diversity'] >= 60) & (self.df_percentile_rank['Dysbiosis'] < 60),
                 
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & (self.df_percentile_rank['Dysbiosis'] < 60/1.1)
+                (self.df_percentile_rank['Diversity'] < 60) & (self.df_percentile_rank['Dysbiosis'] < 60)
             ]
             values = ['E', 'B', 'I', 'D']
 
