@@ -457,6 +457,8 @@ class EgPetAnalysis:
 
             self.df_eval['Type'] = np.select(conditions, values)
             
+            # Save the output file - df_eval
+            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')              
         except Exception as e:
             print(str(e))
             rv = False
