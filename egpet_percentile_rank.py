@@ -435,7 +435,7 @@ class EgPetAnalysis:
                 (self.df_percentile_rank > 30) & (self.df_percentile_rank <= 50),
                 self.df_percentile_rank <= 30
             ]
-            values = [1, 2, 3, 4, 5]
+            values = ['우수', '양호', '보통', '주의', '나쁨']
 
             # Apply the conditions and values using np.select()
             self.df_eval = pd.DataFrame(np.select(conditions, values),
@@ -639,8 +639,8 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    #path_exp = 'input/PD_dog_one_sample.csv'
-    path_exp = 'input/PC_cat_one_sample.csv'
+    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
