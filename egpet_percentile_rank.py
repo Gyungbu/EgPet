@@ -77,6 +77,8 @@ class EgPetAnalysis:
         self.path_egpet_percentile_rank_output = f"{curdir}/output/egpet_percentile_rank_{self.species}.csv"
         self.path_egpet_eval_output = f"{curdir}/output/egpet_eval_{self.species}.csv"
         self.path_egpet_scatterplot_output = f"{curdir}/output/egpet_scatterplot_{self.species}.png"
+        self.path_harmful = f"{curdir}/output/egpet_harmful_{self.species}.csv"
+        self.path_beneficial = f"{curdir}/output/egpet_beneficial_{self.species}.csv"
 
         ## Dataframes read by the ReadDB process
         self.df_beta = None
@@ -91,6 +93,8 @@ class EgPetAnalysis:
         self.df_mrs = None
         self.df_percentile_rank = None
         self.df_eval = None
+        self.df_harmful = None
+        self.df_beneficial = None
         
         ## Lists used for calculation
         self.li_diversity = None
@@ -284,81 +288,6 @@ class EgPetAnalysis:
     
         return rv, rvmsg
      
-    def CalculateHealthyDistance(self): 
-        """
-        Calculate the Healthy Distance.
-
-        Returns:
-        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
-        and message is a string containing a success or error message.
-        """           
-        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
-        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
-        
-        rv = True
-        rvmsg = "Success"
-        
-        try: 
-            self.df_mrs['HealthyDistance'] = 0     
-            self.df_mrs['Diversity'] = self.li_diversity
-            
-            np_healthy_abundance = self.df_healthy['RA'].to_numpy()
-            np_healthy_abundance = np.append(np_healthy_abundance, 100-np_healthy_abundance.sum())
-
-            np_healthy_abundance = clr(np_healthy_abundance)
-            
-            # Subtract the abundance - df_exp_healthy
-            for idx in range(len(self.li_new_sample_name)): 
-                df_exp_one = self.df_exp[['taxa', self.li_new_sample_name[idx]]]
-                df_exp_one = df_exp_one[df_exp_one[self.li_new_sample_name[idx]] != 0]
-                np_abundance = np.array([], dtype=np.float64).reshape(0,1)
-                np_abundance_others = np.ones((1,1), dtype=float)                
-                
-                for idx_healthy, row_healthy in self.df_healthy.iterrows(): 
-                    li_micro_sub = []
-                    li_micro = row_healthy['microbiome'].split('\n')
-                    np_abundance_temp = np.zeros((1,1), dtype=float)
-
-                    for micro in li_micro:
-                        condition_append = (df_exp_one.taxa == micro)
-
-                        if len(df_exp_one[condition_append]) > 0:
-                            np_abundance_temp += df_exp_one[condition_append].to_numpy()[:,1:].astype(np.float64)
-                            np_abundance_others -= df_exp_one[condition_append].to_numpy()[:,1:].astype(np.float64)
-
-                    if pd.isna(row_healthy['microbiome_subtract']) is False:
-                        li_micro_sub = row_healthy['microbiome_subtract'].split('\n')
-
-                        for micro_sub in li_micro_sub:
-                            condition_sub = (df_exp_one.taxa == micro_sub)
-
-                            if len(df_exp_one[condition_sub]) > 0:
-                                np_abundance_temp -= df_exp_one[condition_sub].to_numpy()[:,1:].astype(np.float64)
-                                np_abundance_others += df_exp_one[condition_sub].to_numpy()[:,1:].astype(np.float64)
-
-                    np_abundance = np.concatenate((np_abundance,np_abundance_temp),axis=0)
-
-                np_abundance = np.concatenate((np_abundance,np_abundance_others),axis=0)
-                np_abundance = np_abundance.transpose()
-
-                # Apply multiplicative replacement and CLR transformations
-                np_abundance = multiplicative_replacement(np_abundance)
-                np_abundance = clr(np_abundance)   
-            
-                # Calculate healthy distance for each new sample
-                healthy_dist = np.linalg.norm(np_abundance - np_healthy_abundance)  
-                
-                self.df_mrs.loc[self.li_new_sample_name[idx], 'HealthyDistance'] = -healthy_dist
-            
-        except Exception as e:
-            print(str(e))
-            rv = False
-            rvmsg = str(e)
-            print(f"Error has occurred in the {myNAME} process")    
-            sys.exit()
-    
-        return rv, rvmsg    
-    
     def CalculatePercentileRank(self):
         """
         Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
@@ -374,8 +303,10 @@ class EgPetAnalysis:
         rvmsg = "Success"
         
         try:      
+            self.df_mrs['Diversity'] = self.li_diversity
+            
             # Append the Dysbiosis, HealthyDistance, Diversity, TotalRiskScore to phenotype list
-            self.li_phenotype += ['Dysbiosis', 'HealthyDistance', 'Diversity']
+            self.li_phenotype += ['Dysbiosis', 'Diversity']
 
             # Create an empty data frame with the same index and columns as the df_mrs data frame
             self.df_percentile_rank = pd.DataFrame(index = self.li_new_sample_name, columns = self.li_phenotype)
@@ -389,10 +320,9 @@ class EgPetAnalysis:
             for i in range(len(self.li_phenotype)):
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0      
+
             
-            self.df_percentile_rank['DiseaseMeanScore'] = self.df_percentile_rank.iloc[:,:-3].mean(axis=1, skipna=True, numeric_only=False)
-            
-            self.df_percentile_rank['TotalScore'] = (self.df_percentile_rank['Dysbiosis']*1.1 + self.df_percentile_rank['DiseaseMeanScore']*1.1 + self.df_percentile_rank['Diversity']*0.8)/3
+            self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['Dysbiosis']*0.5 + self.df_percentile_rank['Diversity']*0.5
             
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['TotalScore'].astype(float).round(1)
                         
@@ -439,24 +369,24 @@ class EgPetAnalysis:
             x_vals = np.linspace(start=self.df_percentile_rank_db['Diversity'].min(), stop=self.df_percentile_rank_db['Diversity'].max(), num=100)
             y_vals = intercept + slope * x_vals                   
             '''
-            sns.scatterplot(x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2, hue = self.df_percentile_rank_db['TotalScore'] , data=self.df_percentile_rank_db)
+            sns.scatterplot(x=self.df_percentile_rank_db['Diversity'], y=self.df_percentile_rank_db['Dysbiosis'], hue = self.df_percentile_rank_db['TotalScore'] , data=self.df_percentile_rank_db)
             
             # add new points to the scatter plot
-            sns.scatterplot(x=self.df_percentile_rank['Diversity'], y=(self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2, data=self.df_percentile_rank, color='g')            
+            sns.scatterplot(x=self.df_percentile_rank['Diversity'], y=self.df_percentile_rank['Dysbiosis'], data=self.df_percentile_rank, color='g')            
             
             #plt.plot(x_vals, y_vals, '--', color='lightgray', label=f'y = {slope:.2f}x + {intercept:.2f}')
             plt.xlabel('DiversityScore')
-            plt.ylabel('avg(DysbiosisScore, DiseaseMeanScore)')
+            plt.ylabel('DysbiosisScore')
             plt.legend()
                                  
             plt.axhline(y=60/1.1, xmin=0, xmax=1, color='red', linestyle='--')    
             plt.axvline(x=60/0.8, ymin=0, ymax=1, color='red', linestyle='--')
             
             '''
-            E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 >= 60/1.1)]
-            B_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 >= 60/1.1)]
-            D_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 < 60/1.1)]
-            I_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & ((self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2 < 60/1.1)]
+            E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] >= 60/1.1)]
+            B_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] >= 60/1.1)]
+            D_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] < 60/1.1)]
+            I_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] < 60/1.1)]
 
             E_percent = len(E_data) / len(self.df_percentile_rank_db) * 100
             B_percent = len(B_data) / len(self.df_percentile_rank_db) * 100
@@ -515,10 +445,13 @@ class EgPetAnalysis:
 
             # Type E, B, I, D
             conditions = [
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 >= 60/1.1),
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 >= 60/1.1),
-                (self.df_percentile_rank['Diversity'] >= 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 < 60/1.1),
-                (self.df_percentile_rank['Diversity'] < 60/0.8) & ((self.df_percentile_rank['Dysbiosis'] + self.df_percentile_rank['DiseaseMeanScore'])/2 < 60/1.1)
+                (self.df_percentile_rank['Diversity'] >= 60/0.8) & (self.df_percentile_rank['Dysbiosis'] >= 60/1.1),
+                
+                (self.df_percentile_rank['Diversity'] < 60/0.8) & (self.df_percentile_rank['Dysbiosis'] >= 60/1.1),
+                
+                (self.df_percentile_rank['Diversity'] >= 60/0.8) & (self.df_percentile_rank['Dysbiosis'] < 60/1.1),
+                
+                (self.df_percentile_rank['Diversity'] < 60/0.8) & (self.df_percentile_rank['Dysbiosis'] < 60/1.1)
             ]
             values = ['E', 'B', 'I', 'D']
 
@@ -533,216 +466,189 @@ class EgPetAnalysis:
     
         return rv, rvmsg        
        
-    def CalculateMicrobiomeRatio(self): 
+    def CalculateHarmfulMicrobiomeAbundance(self):
         """
-        Calculate the Beneficial Microbiome Ratio & Harmful Microbiome Ratio 
-        Calculate the Number of Beneficial & Harmful Microbiome
+        Calculate specific harmful microbiome abundance and average harmful microbiome abundance.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
         and message is a string containing a success or error message.
-        """         
+        """  
         myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
         WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
         
         rv = True
         rvmsg = "Success"
         
-        try: 
-            self.li_microbiome = list(dict.fromkeys(self.df_dysbiosis['microbiome']))
+        try:     
+            json_abundance = []
+            self.li_ncbi_name = list(dict.fromkeys(self.df_dysbiosis['ncbi_name']))
             
             for i in range(len(self.li_new_sample_name)):
-                harmful_abundance = 0
-                beneficial_abundance = 0
-                
-                harmful_number = 0
-                beneficial_number = 0
-                
-                for j in range(len(self.li_microbiome)):
-                    condition_harmful = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == 1) 
-                    condition_beneficial = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == -1) 
-                    
-                    if (len(self.df_dysbiosis[condition_harmful]) >= 1) & (len(self.df_dysbiosis[condition_beneficial]) == 0):
-                        condition_micro = (self.df_exp.taxa == self.li_microbiome[j])
-                        abundance = 0
+                for j in range(len(self.li_ncbi_name)):
 
-                        if (len(self.df_exp[condition_micro]) > 0):      
-                            abundance += self.df_exp[condition_micro][self.li_new_sample_name[i]].values[0]    
-                            li_micro_sub = []
-                            if pd.isna(self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0]) is False:
-                                li_micro_sub = self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0].split('\n')
+                    condition_ncbi = (self.df_dysbiosis.beta == 1) & (self.df_dysbiosis.ncbi_name == self.li_ncbi_name[j]) 
 
-                                for micro_sub in li_micro_sub:
-                                    condition_sub = (self.df_exp.taxa == micro_sub)
-
-                                    if len(self.df_exp[condition_sub]) > 0:
-                                        abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]                                  
-                                        
-                        harmful_abundance += abundance  
-
-                        if abundance > 0:
-                            harmful_number += 1
+                    abundance = 0 
+                    abundance_mean = 0
+                    for idx_dysbiosis, row_dysbiosis in self.df_dysbiosis[condition_ncbi].iterrows(): 
+                        condition_exp = (self.df_exp.taxa == row_dysbiosis['microbiome'])
+                        condition_db = (self.df_db.taxa == row_dysbiosis['microbiome'])
+                        
+                        if len(self.df_exp[condition_exp]) > 0:
+                            abundance += self.df_exp[condition_exp][self.li_new_sample_name[i]].values[0]
                             
-                    elif (len(self.df_dysbiosis[condition_harmful]) == 0) & (len(self.df_dysbiosis[condition_beneficial]) >= 1):
-                        condition_micro = (self.df_exp.taxa == self.li_microbiome[j])
-                        abundance = 0
+                        li_micro_sub = []
 
-                        if (len(self.df_exp[condition_micro]) > 0):      
-                            abundance += self.df_exp[condition_micro][self.li_new_sample_name[i]].values[0]  
-                            li_micro_sub = []
-                            if pd.isna(self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0]) is False:
-                                li_micro_sub = self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0].split('\n')                     
-                                
-                                for micro_sub in li_micro_sub:
-                                    condition_sub = (self.df_exp.taxa == micro_sub)
+                        if pd.isna(row_dysbiosis['microbiome_subtract']) is False:
+                            li_micro_sub = row_dysbiosis['microbiome_subtract'].split('\n')
 
-                                    if len(self.df_exp[condition_sub]) > 0:
-                                        abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]       
-                                        
-                        beneficial_abundance += abundance   
+                            for micro_sub in li_micro_sub:
+                                condition_sub = (self.df_exp.taxa == micro_sub)
 
-                        if abundance > 0:
-                            beneficial_number += 1
+                                if len(self.df_exp[condition_sub]) > 0:
+                                    abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]   
                             
-                self.df_eval.loc[self.li_new_sample_name[i], 'harmful_abundance[%]'] = harmful_abundance * 100
-                self.df_eval.loc[self.li_new_sample_name[i], 'beneficial_abundance[%]'] = beneficial_abundance * 100
-                #self.df_eval.loc[self.li_new_sample_name[i], 'other_abundance[%]'] = 100 - 100 * (harmful_abundance + beneficial_abundance)
-                
-                self.df_eval.loc[self.li_new_sample_name[i], 'num_harmful_species'] = harmful_number
-                self.df_eval.loc[self.li_new_sample_name[i], 'num_beneficial_species'] = beneficial_number
+                        
+                        if len(self.df_db[condition_db]) > 0:
+                            abundance_mean += self.df_db[condition_db].mean(axis=1, numeric_only=True).values[0]
+                            
+                        li_micro_sub = []
 
-                #self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
-                #self.df_eval.loc[self.li_new_sample_name[i], 'num_other_species'] = self.li_observed[i] - harmful_number - beneficial_number
-                              
+                        if pd.isna(row_dysbiosis['microbiome_subtract']) is False:
+                            li_micro_sub = row_dysbiosis['microbiome_subtract'].split('\n')
+
+                            for micro_sub in li_micro_sub:
+                                condition_sub = (self.df_db.taxa == micro_sub)
+
+                                if len(self.df_db[condition_sub]) > 0:
+                                    abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]                           
+                        json_abundance.append({"sample_name" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
+
+            df_abundance = pd.DataFrame.from_dict(json_abundance)   
+
+            df_abundance = df_abundance.drop_duplicates(['sample_name', 'ncbi_name'], keep='last')
+               
+            self.df_harmful = pd.DataFrame(columns = ["sample_name", "ncbi_name", "abundance", "abundance_mean"])
+
+            for i in range(len(self.li_new_sample_name)):
+                condition = (df_abundance.sample_name == self.li_new_sample_name[i])
+                df_new = df_abundance[condition].sort_values(by=['abundance_mean'], ascending=False)
+                self.df_harmful = pd.concat([self.df_harmful,df_new])
+               
+            self.df_harmful = self.df_harmful.set_index(keys=['sample_name'], inplace=False, drop=True)           
+            self.df_harmful.to_csv(self.path_harmful)   
+             
         except Exception as e:
             print(str(e))
             rv = False
             rvmsg = str(e)
-            print(f"Error has occurred in the {myNAME} process")    
+            print(f"Error has occurred in the {myNAME} process")
             sys.exit()
-            
+    
         return rv, rvmsg  
 
-    def CalculateAverageMicrobiomeRatio(self): 
+    def CalculateBeneficialMicrobiomeAbundance(self):
         """
-        Calculate the average Beneficial Microbiome Ratio & Harmful Microbiome Ratio
+        Calculate specific beneficial microbiome abundance and average beneficial microbiome abundance.
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
         and message is a string containing a success or error message.
-        """         
+        """  
         myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
         WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
         
         rv = True
         rvmsg = "Success"
         
-        try: 
-
-            harmful_mean_abundance = 0
-            beneficial_mean_abundance = 0
-
-            for j in range(len(self.li_microbiome)):
-                condition_harmful = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == 1) 
-                condition_beneficial = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == -1) 
-
-                if (len(self.df_dysbiosis[condition_harmful]) >= 1) & (len(self.df_dysbiosis[condition_beneficial]) == 0):
-                    condition_micro = (self.df_db.taxa == self.li_microbiome[j])
-                    abundance_mean = 0
-
-                    if (len(self.df_db[condition_micro]) > 0):      
-                        abundance_mean += self.df_db[condition_micro].mean(axis=1, numeric_only=True).values[0]      
-                        li_micro_sub = []
-                        if pd.isna(self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0]) is False:
-                            li_micro_sub = self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0].split('\n')
-
-                            for micro_sub in li_micro_sub:
-                                condition_sub = (self.df_db.taxa == micro_sub)
-
-                                if len(self.df_db[condition_sub]) > 0:
-                                    abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]       
-
-                        harmful_mean_abundance += abundance_mean       
-
-                elif (len(self.df_dysbiosis[condition_harmful]) == 0) & (len(self.df_dysbiosis[condition_beneficial]) >= 1):
-                    condition_micro = (self.df_db.taxa == self.li_microbiome[j])
-                    abundance_mean = 0
-
-                    if (len(self.df_db[condition_micro]) > 0):      
-                        abundance_mean += self.df_db[condition_micro].mean(axis=1, numeric_only=True).values[0]     
-                        li_micro_sub = []
-                        if pd.isna(self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0]) is False:
-                            li_micro_sub = self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0].split('\n')                     
-
-                            for micro_sub in li_micro_sub:
-                                condition_sub = (self.df_db.taxa == micro_sub)
-
-                                if len(self.df_db[condition_sub]) > 0:
-                                    abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]     
-
-                        beneficial_mean_abundance += abundance_mean   
-
-            self.df_eval.loc[:,'harmful_mean_abundance[%]'] = harmful_mean_abundance * 100
-            self.df_eval.loc[:,'beneficial_mean_abundance[%]'] = beneficial_mean_abundance * 100
-            
-            # Save the output file - df_eval
-            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')
-                    
-        except Exception as e:
-            print(str(e))
-            rv = False
-            rvmsg = str(e)
-            print(f"Error has occurred in the {myNAME} process")    
-            sys.exit()
-            
-        return rv, rvmsg      
-
-    def CalculatePearsonCorrelation(self): 
-        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
-        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
-
-        rv = True
-        rvmsg = "Success"
-
         try:     
-            li_corr_var = ['Dysbiosis', 'HealthyDistance', 'Diversity']
+            json_abundance = []
+            
+            for i in range(len(self.li_new_sample_name)):
+                for j in range(len(self.li_ncbi_name)):
 
-            for corr_var in li_corr_var:           
-                for idx in range(len(self.li_phenotype)):
-                    res = pearsonr(list(self.df_mrs[self.li_phenotype[idx]]), list(self.df_mrs[corr_var]))
-                    print(corr_var, '--', self.li_phenotype[idx], res)
+                    condition_ncbi = (self.df_dysbiosis.beta == -1) & (self.df_dysbiosis.ncbi_name == self.li_ncbi_name[j]) 
 
+                    abundance = 0 
+                    abundance_mean = 0
+                    for idx_dysbiosis, row_dysbiosis in self.df_dysbiosis[condition_ncbi].iterrows(): 
+                        condition_exp = (self.df_exp.taxa == row_dysbiosis['microbiome'])
+                        condition_db = (self.df_db.taxa == row_dysbiosis['microbiome'])
+                        
+                        if len(self.df_exp[condition_exp]) > 0:
+                            abundance += self.df_exp[condition_exp][self.li_new_sample_name[i]].values[0]
+                            
+                        li_micro_sub = []
 
+                        if pd.isna(row_dysbiosis['microbiome_subtract']) is False:
+                            li_micro_sub = row_dysbiosis['microbiome_subtract'].split('\n')
+
+                            for micro_sub in li_micro_sub:
+                                condition_sub = (self.df_exp.taxa == micro_sub)
+
+                                if len(self.df_exp[condition_sub]) > 0:
+                                    abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]   
+                            
+                        
+                        if len(self.df_db[condition_db]) > 0:
+                            abundance_mean += self.df_db[condition_db].mean(axis=1, numeric_only=True).values[0]
+                            
+                        li_micro_sub = []
+
+                        if pd.isna(row_dysbiosis['microbiome_subtract']) is False:
+                            li_micro_sub = row_dysbiosis['microbiome_subtract'].split('\n')
+
+                            for micro_sub in li_micro_sub:
+                                condition_sub = (self.df_db.taxa == micro_sub)
+
+                                if len(self.df_db[condition_sub]) > 0:
+                                    abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]                           
+                        json_abundance.append({"sample_name" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
+
+            df_abundance = pd.DataFrame.from_dict(json_abundance)   
+
+            df_abundance = df_abundance.drop_duplicates(['sample_name', 'ncbi_name'], keep='last')
+
+            self.df_beneficial = pd.DataFrame(columns = ["sample_name", "ncbi_name", "abundance", "abundance_mean"])
+
+            for i in range(len(self.li_new_sample_name)):
+                condition = (df_abundance.sample_name == self.li_new_sample_name[i])
+                df_new = df_abundance[condition].sort_values(by=['abundance_mean'], ascending=False)
+                self.df_beneficial = pd.concat([self.df_beneficial,df_new])
+
+            self.df_beneficial = self.df_beneficial.set_index(keys=['sample_name'], inplace=False, drop=True)           
+            self.df_beneficial.to_csv(self.path_beneficial)    
+    
         except Exception as e:
             print(str(e))
             rv = False
             rvmsg = str(e)
-            print("Error has occurred in the CalculatePearsonCorrelation process")
+            print(f"Error has occurred in the {myNAME} process")
             sys.exit()
-
-        return rv, rvmsg      
+    
+        return rv, rvmsg       
+    
 ####################################
 # main
 ####################################
 if __name__ == '__main__':
     
-    path_exp = 'input/PDmirror_output_dog_1629.csv'
+    #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    #path_exp = 'input/PD_dog_one_sample.csv'
+    path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
     egpetanalysis.CalculateMRS()    
     egpetanalysis.CalculateDysbiosis()    
-    egpetanalysis.CalculateHealthyDistance()
     egpetanalysis.CalculatePercentileRank()
-    egpetanalysis.DrawScatterPlot()    
+    #egpetanalysis.DrawScatterPlot()    
     egpetanalysis.EvaluatePercentileRank()    
-    egpetanalysis.CalculateMicrobiomeRatio()
-    egpetanalysis.CalculateAverageMicrobiomeRatio()
-    #egpetanalysis.CalculatePearsonCorrelation()
+    egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
+    egpetanalysis.CalculateBeneficialMicrobiomeAbundance()
     
     print('Analysis Complete')
     

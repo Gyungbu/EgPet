@@ -1,0 +1,11 @@
+sample_name,ncbi_name,abundance,abundance_mean
+20230210_BC19,Faecalibacterium prausnitzii,0.082521848,0.025932610397428696
+20230210_BC19,Tyzzerella nexilis,0.00707449,0.004851920616426776
+20230210_BC19,Anaerobutyricum hallii (Eubacterium hallii),0.00411985,0.0008992241748248733
+20230210_BC19,Holdemanella biformis ([Eubacterium] biforme),2.08e-05,0.0004315291693629732
+20230210_BC19,Weissella confusa,0.0,3.890568674352652e-05
+20230210_BC19,Lactobacillus salivarius,0.0,2.2400438651555165e-05
+20230210_BC19,Oxalobacter formigenes,0.0,1.708761817644913e-05
+20230210_BC19,Lactobacillus rhamnosus,0.0,1.4862343711434393e-05
+20230210_BC19,Lactobacillus mucosae,0.0,4.1849070549819694e-06
+20230210_BC19,Lactobacillus fermentum,0.0,2.507549290581356e-06
