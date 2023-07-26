@@ -637,8 +637,8 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    path_exp = 'input/PD_dog_one_sample.csv'
-    #path_exp = 'input/PC_cat_one_sample.csv'
+    #path_exp = 'input/PD_dog_one_sample.csv'
+    path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
