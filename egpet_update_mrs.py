@@ -75,7 +75,6 @@ class EgPetUpdateMRS:
         if self.species in ['dog', 'cat']:  
             curdir = os.path.abspath('')
             self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
-            self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.csv"
             self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
             self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
             self.path_hist = f"{curdir}/output/mrs_hist_{self.species}.png"
@@ -121,7 +120,6 @@ class EgPetUpdateMRS:
         try:       
             self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
             self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
-            self.df_healthy = pd.read_csv(self.path_healthy, encoding='cp949')
             self.df_db = pd.read_csv(self.path_db, encoding='cp949')
             self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
     
@@ -337,7 +335,7 @@ class EgPetUpdateMRS:
         try:      
             self.df_mrs['Diversity'] = self.li_diversity
             
-            # Append the Dysbiosis, HealthyDistance, Diversity, TotalRiskScore to phenotype list
+            # Append the Dysbiosis, Diversity to phenotype list
             self.li_phenotype += ['Dysbiosis', 'Diversity']
 
             # Create an empty data frame with the same index and columns as the df_mrs data frame

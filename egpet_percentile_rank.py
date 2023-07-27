@@ -58,7 +58,6 @@ class EgPetAnalysis:
         ## Reference csv files
         curdir = os.path.dirname(os.path.abspath(__file__))
         self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
-        self.path_healthy = f"{curdir}/input/healthy_profile_{self.species}.csv"
         self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
         self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
         self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.csv"
@@ -82,7 +81,6 @@ class EgPetAnalysis:
 
         ## Dataframes read by the ReadDB process
         self.df_beta = None
-        self.df_healthy = None
         self.df_exp = None
         self.df_mrs_db = None
         self.df_dysbiosis = None
@@ -102,6 +100,8 @@ class EgPetAnalysis:
         self.li_new_sample_name = None
         self.li_phenotype = None
         self.li_microbiome = None
+        
+        self.observed_mean = None
 
     # Load the DB file
     # df_beta : Data frame of of Phenotype-Microbiome information
@@ -123,7 +123,6 @@ class EgPetAnalysis:
         try:
             self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
             self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
-            self.df_healthy = pd.read_csv(self.path_healthy, encoding='cp949')
             self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
             self.df_mrs_db = pd.read_csv(self.path_mrs_db, index_col=0, encoding='cp949') 
             self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
@@ -143,6 +142,8 @@ class EgPetAnalysis:
             if (list(self.df_exp['taxa'][0:2]) == ['diversity', 'observed']) & (list(self.df_db['taxa'][0:2]) == ['diversity', 'observed']):
                 self.li_diversity = list(self.df_exp.iloc[0,1:]) # li_diversity : Alpha-Diversity list 
                 self.li_observed = list(self.df_exp.iloc[1,1:]) # li_observed : Number of Microbiome list
+                
+                self.observed_mean = self.df_db[(self.df_db.taxa == "observed")].mean(axis=1, numeric_only=True).values[0]
                 self.df_exp = self.df_exp.iloc[2:,:]
                 self.df_db = self.df_db.iloc[2:,:]
                             
@@ -456,6 +457,11 @@ class EgPetAnalysis:
             values = ['E', 'B', 'I', 'D']
 
             self.df_eval['Type'] = np.select(conditions, values)
+            
+            # Insert the data - observed_mean
+            for i in range(len(self.li_new_sample_name)):
+                self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
+            self.df_eval.loc[:,'observed_mean'] = round(self.observed_mean)
             
             # Save the output file - df_eval
             self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')              
