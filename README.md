@@ -43,11 +43,11 @@ Run the command below:
    
     
     
-When comp_update_mrs is executed as above, the file `db_abundance_{self.species}.xlsx`, `egpet_mrs_db_{self.species}.xlsx`, `egpet_percentile_rank_db_{self.species}.csv` will be created or modified in the `./EgPet/input/` folder (where, {self.species} : dog or cat).
+When egpet_update_mrs is executed as above, the file `db_abundance_{self.species}.xlsx`, `egpet_mrs_db_{self.species}.xlsx`, `egpet_percentile_rank_db_{self.species}.csv` will be created or modified in the `./EgPet/input/` folder (where, {self.species} : dog or cat).
 And the file `mrs_hist_{self.species}g.png` will be created or modified in the `./EgPet/output/` folder (where, {self.species} : dog or cat).
 
 
-# comp_percentile_rank : Calculate the index and percentile ranks of pets.
+# egpet_percentile_rank : Calculate the index and percentile ranks of pets.
 ## How to use
 
 ### 1. Prepare Input data
@@ -59,8 +59,8 @@ Caveats:
 3. In the case of dog, the name of the Merged Proportion File should start with 'PD', and in the case of cat, the name of the Merged Proportion File should start with 'PC'.
 4. In egpet_percentile_rank.py, under if __name__ == '__main__': enter the path of the proportion file you want to analyze in the 'path_exp' value and save it.
 
-### 2. Run comp_percentile_rank
-To run comp_percentile_rank,
+### 2. Run egpet_percentile_rank
+To run egpet_percentile_rank,
  
 Run the command below:
 
