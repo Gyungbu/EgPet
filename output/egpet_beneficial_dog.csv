@@ -4,8 +4,16 @@ sample_name,ncbi_name,abundance,abundance_mean
 20230210_BC04,Bifidobacterium longum,1.42e-05,0.0011356265692493222
 20230210_BC04,Lactobacillus rhamnosus,0.0,0.0003392860782458649
 20230210_BC04,Lactobacillus salivarius,0.0,0.0002558748765748872
+20230210_BC04,Lactobacillus reuteri,0.0,0.00016915768118077145
+20230210_BC04,Bifidobacterium animalis,0.0,0.00016599745392193075
 20230210_BC04,Anaerobutyricum hallii (Eubacterium hallii),0.000241097,0.00012633067112064887
+20230210_BC04,Bifidobacterium breve,0.0,9.385201059231043e-05
 20230210_BC04,Lactobacillus fermentum,0.0,8.890606780497235e-05
+20230210_BC04,Streptococcus thermophilus,0.0,4.3531275009710067e-05
+20230210_BC04,Lactobacillus plantarum,0.0,2.769626538021314e-05
+20230210_BC04,Lactobacillus acidophilus,0.0,1.1380568223319106e-05
+20230210_BC04,Bifidobacterium bifidum,0.0,4.290970705175607e-06
 20230210_BC04,Holdemanella biformis ([Eubacterium] biforme),1.42e-05,4.150711147437795e-06
 20230210_BC04,Weissella confusa,0.0,1.2066353015753336e-06
 20230210_BC04,Oxalobacter formigenes,0.0,3.6730271253053205e-07
+20230210_BC04,Lactobacillus casei,0.0,0.0

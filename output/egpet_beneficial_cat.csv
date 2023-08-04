@@ -1,11 +1,20 @@
 sample_name,ncbi_name,abundance,abundance_mean
 20230210_BC19,Faecalibacterium prausnitzii,0.082521848,0.025932610397428696
 20230210_BC19,Tyzzerella nexilis,0.00707449,0.004851920616426776
+20230210_BC19,Bifidobacterium longum,0.0,0.0033009828438504184
 20230210_BC19,Anaerobutyricum hallii (Eubacterium hallii),0.00411985,0.0008992241748248733
 20230210_BC19,Holdemanella biformis ([Eubacterium] biforme),2.08e-05,0.0004315291693629732
+20230210_BC19,Bifidobacterium animalis,0.0,0.00011252342057115842
 20230210_BC19,Weissella confusa,0.0,3.890568674352652e-05
 20230210_BC19,Lactobacillus salivarius,0.0,2.2400438651555165e-05
 20230210_BC19,Oxalobacter formigenes,0.0,1.708761817644913e-05
 20230210_BC19,Lactobacillus rhamnosus,0.0,1.4862343711434393e-05
+20230210_BC19,Lactobacillus acidophilus,0.0,1.170514954887356e-05
 20230210_BC19,Lactobacillus mucosae,0.0,4.1849070549819694e-06
+20230210_BC19,Bifidobacterium bifidum,0.0,3.2435090188650246e-06
 20230210_BC19,Lactobacillus fermentum,0.0,2.507549290581356e-06
+20230210_BC19,Bifidobacterium breve,0.0,2.470954483809657e-06
+20230210_BC19,Streptococcus thermophilus,0.0,1.9338235720893704e-06
+20230210_BC19,Lactobacillus plantarum,0.0,5.709765211599616e-07
+20230210_BC19,Lactobacillus reuteri,0.0,4.0780406482779663e-07
+20230210_BC19,Lactobacillus casei,0.0,0.0

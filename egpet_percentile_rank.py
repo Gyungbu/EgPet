@@ -57,10 +57,9 @@ class EgPetAnalysis:
 
         ## Reference csv files
         curdir = os.path.dirname(os.path.abspath(__file__))
-        self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
+        self.path_ref = f"{curdir}/input/EGpet_references.xlsx" 
         self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
         self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
-        self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.csv"
         self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
         
         ###output
@@ -121,11 +120,10 @@ class EgPetAnalysis:
         rvmsg = "Success"
         
         try:
-            self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
-            self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
+            self.df_beta = pd.read_excel(self.path_ref, sheet_name = f"phenotype_{self.species}")
+            self.df_dysbiosis = pd.read_excel(self.path_ref, sheet_name = f"dysbiosis_{self.species}")
             self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
             self.df_mrs_db = pd.read_csv(self.path_mrs_db, index_col=0, encoding='cp949') 
-            self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
             self.df_percentile_rank_db = pd.read_csv(self.path_percentile_rank_db, encoding='cp949')
             self.df_db = pd.read_csv(self.path_db, encoding='cp949')
 
@@ -645,8 +643,8 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    path_exp = 'input/PD_dog_one_sample.csv'
-    #path_exp = 'input/PC_cat_one_sample.csv'
+    #path_exp = 'input/PD_dog_one_sample.csv'
+    path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()

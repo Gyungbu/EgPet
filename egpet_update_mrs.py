@@ -74,11 +74,10 @@ class EgPetUpdateMRS:
         
         if self.species in ['dog', 'cat']:  
             curdir = os.path.abspath('')
-            self.path_beta = f"{curdir}/input/phenotype_microbiome_{self.species}.csv"
+            self.path_ref = f"{curdir}/input/EGpet_references.xlsx"
             self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
             self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
             self.path_hist = f"{curdir}/output/mrs_hist_{self.species}.png"
-            self.path_dysbiosis = f"{curdir}/input/dysbiosis_microbiome_{self.species}.csv"
             self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
 
             self.df_beta = None
@@ -118,8 +117,8 @@ class EgPetUpdateMRS:
         rvmsg = "Success"
         
         try:       
-            self.df_beta = pd.read_csv(self.path_beta, encoding='cp949')
-            self.df_dysbiosis = pd.read_csv(self.path_dysbiosis, encoding='cp949')
+            self.df_beta = pd.read_excel(self.path_ref, sheet_name = f"phenotype_{self.species}")
+            self.df_dysbiosis = pd.read_excel(self.path_ref, sheet_name = f"dysbiosis_{self.species}")
             self.df_db = pd.read_csv(self.path_db, encoding='cp949')
             self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
     
@@ -233,8 +232,9 @@ class EgPetUpdateMRS:
                                     abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]     
                             
                         mrs += row_beta['beta'] * math.log10(100*abundance + 1) 
-
-                    mrs /= len(self.df_beta[condition_phen])       
+                        
+                    mrs /= len(self.df_beta[condition_phen])    
+                    print(self.li_new_sample_name[i], self.li_phenotype[j], len(self.df_beta[condition_phen]))
                     self.df_mrs.loc[self.li_new_sample_name[i], self.li_phenotype[j]] = -mrs
 
         except Exception as e:
