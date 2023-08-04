@@ -340,76 +340,6 @@ class EgPetAnalysis:
     
         return rv, rvmsg
 
-
-    def DrawScatterPlot(self):
-        """
-        Draw a scatter plot using the values of diversity, dysbiosis, and HealthyDistance
-
-        Returns:
-        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
-        and message is a string containing a success or error message.
-        """          
-        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
-        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
-         
-        rv = True
-        rvmsg = "Success"
-        
-        try:  
-            '''
-            #create regplot
-            p = sns.regplot(data=self.df_percentile_rank_db, x=self.df_percentile_rank_db['Diversity'], y=(self.df_percentile_rank_db['Dysbiosis'] + self.df_percentile_rank_db['DiseaseMeanScore'])/2)
-
-            #calculate slope and intercept of regression equation
-            slope, intercept, r, p, sterr = scipy.stats.linregress(x=p.get_lines()[0].get_xdata(),
-                                                                   y=p.get_lines()[0].get_ydata())
-
-            # generate x and y values for the line
-            x_vals = np.linspace(start=self.df_percentile_rank_db['Diversity'].min(), stop=self.df_percentile_rank_db['Diversity'].max(), num=100)
-            y_vals = intercept + slope * x_vals                   
-            '''
-            sns.scatterplot(x=self.df_percentile_rank_db['Diversity'], y=self.df_percentile_rank_db['Dysbiosis'], hue = self.df_percentile_rank_db['TotalScore'] , data=self.df_percentile_rank_db)
-            
-            # add new points to the scatter plot
-            sns.scatterplot(x=self.df_percentile_rank['Diversity'], y=self.df_percentile_rank['Dysbiosis'], data=self.df_percentile_rank, color='g')            
-            
-            #plt.plot(x_vals, y_vals, '--', color='lightgray', label=f'y = {slope:.2f}x + {intercept:.2f}')
-            plt.xlabel('DiversityScore')
-            plt.ylabel('DysbiosisScore')
-            plt.legend()
-                                 
-            plt.axhline(y=60, xmin=0, xmax=1, color='red', linestyle='--')    
-            plt.axvline(x=60, ymin=0, ymax=1, color='red', linestyle='--')
-            
-            '''
-            E_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] >= 60/1.1)]
-            B_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] >= 60/1.1)]
-            D_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] < 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] < 60/1.1)]
-            I_data = self.df_percentile_rank_db[(self.df_percentile_rank_db['Diversity'] >= 60/0.8) & (self.df_percentile_rank_db['Dysbiosis'] < 60/1.1)]
-
-            E_percent = len(E_data) / len(self.df_percentile_rank_db) * 100
-            B_percent = len(B_data) / len(self.df_percentile_rank_db) * 100
-            D_percent = len(D_data) / len(self.df_percentile_rank_db) * 100
-            I_percent = len(I_data) / len(self.df_percentile_rank_db) * 100
-            
-            print(f"<{self.species}>")
-            print("Percentage of samples in E: ", E_percent, '%')
-            print("Percentage of samples in B: ", B_percent, '%') 
-            print("Percentage of samples in D: ", D_percent, '%')
-            print("Percentage of samples in I: ", I_percent, '%')  
-            '''
-            
-            # save the scatter plot
-            plt.savefig(self.path_egpet_scatterplot_output , dpi=300, bbox_inches='tight')          
-              
-        except Exception as e:
-            print(str(e))
-            rv = False
-            rvmsg = str(e)
-            print(f"Error has occurred in the {myNAME} process")    
-            sys.exit()
-    
-        return rv, rvmsg
     
     def EvaluatePercentileRank(self):
         """
@@ -651,7 +581,6 @@ if __name__ == '__main__':
     egpetanalysis.CalculateMRS()    
     egpetanalysis.CalculateDysbiosis()    
     egpetanalysis.CalculatePercentileRank()
-    #egpetanalysis.DrawScatterPlot()    
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
     egpetanalysis.CalculateBeneficialMicrobiomeAbundance()
