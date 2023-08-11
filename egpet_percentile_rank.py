@@ -286,7 +286,80 @@ class EgPetAnalysis:
             print(f"Error has occurred in the {myNAME} process")    
     
         return rv, rvmsg
-     
+
+    def CalculateDysbiosisHarmfulBeneficial(self): 
+        """
+        Calculate the Dysbiosis.
+
+        Returns:
+        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
+        and message is a string containing a success or error message.
+        """         
+        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
+        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
+        
+        rv = True
+        rvmsg = "Success"
+        
+        try: 
+            self.li_microbiome = list(dict.fromkeys(self.df_dysbiosis['microbiome']))
+            
+            for i in range(len(self.li_new_sample_name)):
+                dysbiosis_harmful = 0
+                dysbiosis_beneficial = 0
+                
+                for j in range(len(self.li_microbiome)):
+                    condition_harmful = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == 1) 
+                    condition_beneficial = (self.df_dysbiosis.microbiome == self.li_microbiome[j]) & (self.df_dysbiosis.beta == -1) 
+                    
+                    if (len(self.df_dysbiosis[condition_harmful]) >= 1) & (len(self.df_dysbiosis[condition_beneficial]) == 0):
+                        condition_micro = (self.df_exp.taxa == self.li_microbiome[j])
+                        abundance = 0
+
+                        if (len(self.df_exp[condition_micro]) > 0):      
+                            abundance += self.df_exp[condition_micro][self.li_new_sample_name[i]].values[0]    
+                            li_micro_sub = []
+                            if pd.isna(self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0]) is False:
+                                li_micro_sub = self.df_dysbiosis[condition_harmful]['microbiome_subtract'].values[0].split('\n')
+
+                                for micro_sub in li_micro_sub:
+                                    condition_sub = (self.df_exp.taxa == micro_sub)
+
+                                    if len(self.df_exp[condition_sub]) > 0:
+                                        abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]                                  
+                                        
+                            dysbiosis_harmful += math.log10(100*abundance + 1)            
+                            
+                    elif (len(self.df_dysbiosis[condition_harmful]) == 0) & (len(self.df_dysbiosis[condition_beneficial]) >= 1):
+                        condition_micro = (self.df_exp.taxa == self.li_microbiome[j])
+                        abundance = 0
+
+                        if (len(self.df_exp[condition_micro]) > 0):      
+                            abundance += self.df_exp[condition_micro][self.li_new_sample_name[i]].values[0]  
+                            li_micro_sub = []
+                            if pd.isna(self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0]) is False:
+                                li_micro_sub = self.df_dysbiosis[condition_beneficial]['microbiome_subtract'].values[0].split('\n')                     
+                                
+                                for micro_sub in li_micro_sub:
+                                    condition_sub = (self.df_exp.taxa == micro_sub)
+
+                                    if len(self.df_exp[condition_sub]) > 0:
+                                        abundance -= self.df_exp[condition_sub][self.li_new_sample_name[i]].values[0]       
+                                        
+                            dysbiosis_beneficial -= math.log10(100*abundance + 1)      
+                            
+                self.df_mrs.loc[self.li_new_sample_name[i], 'DysbiosisHarmful'] = -dysbiosis_harmful
+                self.df_mrs.loc[self.li_new_sample_name[i], 'DysbiosisBeneficial'] = -dysbiosis_beneficial
+                         
+        except Exception as e:
+            print(str(e))
+            rv = False
+            rvmsg = str(e)
+            print(f"Error has occurred in the {myNAME} process")    
+            sys.exit() 
+    
+        return rv, rvmsg     
+    
     def CalculatePercentileRank(self):
         """
         Calculate the Percentile Rank and Save the Percentile Rank data as an Csv file.
@@ -305,7 +378,7 @@ class EgPetAnalysis:
             self.df_mrs['Diversity'] = self.li_diversity
             
             # Append the Dysbiosis, Diversity to phenotype list
-            self.li_phenotype += ['Dysbiosis', 'Diversity']
+            self.li_phenotype += ['Dysbiosis', 'Diversity', 'DysbiosisHarmful', 'DysbiosisBeneficial']
 
             # Create an empty data frame with the same index and columns as the df_mrs data frame
             self.df_percentile_rank = pd.DataFrame(index = self.li_new_sample_name, columns = self.li_phenotype)
@@ -579,7 +652,8 @@ if __name__ == '__main__':
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
     egpetanalysis.CalculateMRS()    
-    egpetanalysis.CalculateDysbiosis()    
+    egpetanalysis.CalculateDysbiosis() 
+    egpetanalysis.CalculateDysbiosisHarmfulBeneficial()     
     egpetanalysis.CalculatePercentileRank()
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
