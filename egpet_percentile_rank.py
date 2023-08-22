@@ -393,10 +393,30 @@ class EgPetAnalysis:
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0      
 
+            # Main Category
+            if self.species == 'dog':     
+                self.df_percentile_rank['순환기질환'] = (self.df_percentile_rank['Heart Failure'] + self.df_percentile_rank['Hypertension'])/2
+                self.df_percentile_rank['간 질환'] = (self.df_percentile_rank['Primary Sclerosing Cholangitis'] + self.df_percentile_rank['Liver Cirrhosis'])/2
+                self.df_percentile_rank['소화기 질환'] = (self.df_percentile_rank['Exocrine Pancreatic Insufficiency'] + self.df_percentile_rank['Acute Diarrhea'] + self.df_percentile_rank['Chronic Enteropathy'] + self.df_percentile_rank['Acute Pancreatitis'])/4        
+                self.df_percentile_rank['신장 질환'] = self.df_percentile_rank['Chronic Kidney Disease']
+                self.df_percentile_rank['대사 질환'] = (self.df_percentile_rank['Diabetes Mellitus'] + self.df_percentile_rank["Cushing's Syndrome"])/2
+                self.df_percentile_rank['정형 질환'] = self.df_percentile_rank['Chronic Arthritis']
+                self.df_percentile_rank['피부 질환'] = self.df_percentile_rank['Atopic Dermatitis']                
+                self.df_percentile_rank['비만'] = self.df_percentile_rank['Obesity']
             
+            elif self.species == 'cat':
+                self.df_percentile_rank['순환기질환'] = (self.df_percentile_rank['Heart Failure'] + self.df_percentile_rank['Hypertension'])/2
+                self.df_percentile_rank['간 질환'] = (self.df_percentile_rank['Primary Sclerosing Cholangitis'] + self.df_percentile_rank['Liver Cirrhosis'])/2
+                self.df_percentile_rank['소화기 질환'] = (self.df_percentile_rank['Chronic Enteropathy'] + self.df_percentile_rank['Diarrhea'] + self.df_percentile_rank['Acute Pancreatitis'])/3              
+                self.df_percentile_rank['신장 질환'] = self.df_percentile_rank['Chronic Kidney Disease']
+                self.df_percentile_rank['대사 질환'] = (self.df_percentile_rank['Diabetes Mellitus'] + self.df_percentile_rank["Cushing's Syndrome"])/2
+                self.df_percentile_rank['비만'] = self.df_percentile_rank['Obesity']
+                
+                
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['Dysbiosis']*0.5 + self.df_percentile_rank['Diversity']*0.5
             
-            self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['TotalScore'].astype(float).round(1)
+            for col in self.df_percentile_rank:
+                self.df_percentile_rank[col] = self.df_percentile_rank[col].astype(float).round(1)
                         
             # Replace missing values with the string 'None'    
             self.df_percentile_rank = self.df_percentile_rank.fillna('None')
@@ -443,7 +463,7 @@ class EgPetAnalysis:
             self.df_eval = pd.DataFrame(np.select(conditions, values),
                                         index=self.df_percentile_rank.index,
                                         columns=self.df_percentile_rank.columns)
-            self.df_eval = self.df_eval.iloc[:, :-1]
+            self.df_eval = self.df_eval.loc[:,'Dysbiosis':]
 
             # Type E, B, I, D
             conditions = [

@@ -1,2 +1,2 @@
-﻿serial_number,Heart Failure,Hypertension,Primary Sclerosing Cholangitis,Liver Cirrhosis,Chronic Enteropathy,Diarrhea,Acute Pancreatitis,Chronic Kidney Disease,Diabetes Mellitus,Cushing's Syndrome,Obesity,Dysbiosis,Diversity,DysbiosisHarmful,DysbiosisBeneficial,Type,num_total_species,observed_mean
-20230210_BC19,우수,나쁨,보통,우수,우수,양호,우수,주의,나쁨,양호,양호,우수,양호,보통,양호,E,245.0,206
+﻿serial_number,Dysbiosis,Diversity,DysbiosisHarmful,DysbiosisBeneficial,순환기질환,간 질환,소화기 질환,신장 질환,대사 질환,비만,TotalScore,Type,num_total_species,observed_mean
+20230210_BC19,우수,양호,보통,양호,보통,양호,양호,주의,보통,양호,양호,E,245.0,206
