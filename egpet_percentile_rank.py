@@ -391,27 +391,36 @@ class EgPetAnalysis:
             # Replace percentile ranks that are less than or equal to 5 with 5, and those that are greater than or equal to 95 with 95
             for i in range(len(self.li_phenotype)):
                 self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
-                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0      
+                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0     
+                
+                
+            # Define a dictionary to map species to their specific category and corresponding phenotypes
+            species_categories = {
+                'dog': {
+                    '순환기질환': ['Heart Failure', 'Hypertension'],
+                    '간 질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
+                    '소화기 질환': ['Exocrine Pancreatic Insufficiency', 'Acute Diarrhea', 'Chronic Enteropathy', 'Acute Pancreatitis'],
+                    '신장 질환': ['Chronic Kidney Disease'],
+                    '대사 질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
+                    '정형 질환': ['Chronic Arthritis'],
+                    '피부 질환': ['Atopic Dermatitis'],
+                    '비만': ['Obesity']
+                },
+                'cat': {
+                    '순환기질환': ['Heart Failure', 'Hypertension'],
+                    '간 질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
+                    '소화기 질환': ['Chronic Enteropathy', 'Diarrhea', 'Acute Pancreatitis'],
+                    '신장 질환': ['Chronic Kidney Disease'],
+                    '대사 질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
+                    '비만': ['Obesity']
+                }
+            }
 
             # Main Category
-            if self.species == 'dog':     
-                self.df_percentile_rank['순환기질환'] = (self.df_percentile_rank['Heart Failure'] + self.df_percentile_rank['Hypertension'])/2
-                self.df_percentile_rank['간 질환'] = (self.df_percentile_rank['Primary Sclerosing Cholangitis'] + self.df_percentile_rank['Liver Cirrhosis'])/2
-                self.df_percentile_rank['소화기 질환'] = (self.df_percentile_rank['Exocrine Pancreatic Insufficiency'] + self.df_percentile_rank['Acute Diarrhea'] + self.df_percentile_rank['Chronic Enteropathy'] + self.df_percentile_rank['Acute Pancreatitis'])/4        
-                self.df_percentile_rank['신장 질환'] = self.df_percentile_rank['Chronic Kidney Disease']
-                self.df_percentile_rank['대사 질환'] = (self.df_percentile_rank['Diabetes Mellitus'] + self.df_percentile_rank["Cushing's Syndrome"])/2
-                self.df_percentile_rank['정형 질환'] = self.df_percentile_rank['Chronic Arthritis']
-                self.df_percentile_rank['피부 질환'] = self.df_percentile_rank['Atopic Dermatitis']                
-                self.df_percentile_rank['비만'] = self.df_percentile_rank['Obesity']
-            
-            elif self.species == 'cat':
-                self.df_percentile_rank['순환기질환'] = (self.df_percentile_rank['Heart Failure'] + self.df_percentile_rank['Hypertension'])/2
-                self.df_percentile_rank['간 질환'] = (self.df_percentile_rank['Primary Sclerosing Cholangitis'] + self.df_percentile_rank['Liver Cirrhosis'])/2
-                self.df_percentile_rank['소화기 질환'] = (self.df_percentile_rank['Chronic Enteropathy'] + self.df_percentile_rank['Diarrhea'] + self.df_percentile_rank['Acute Pancreatitis'])/3              
-                self.df_percentile_rank['신장 질환'] = self.df_percentile_rank['Chronic Kidney Disease']
-                self.df_percentile_rank['대사 질환'] = (self.df_percentile_rank['Diabetes Mellitus'] + self.df_percentile_rank["Cushing's Syndrome"])/2
-                self.df_percentile_rank['비만'] = self.df_percentile_rank['Obesity']
-                
+            if self.species in species_categories:
+                species_specific_categories = species_categories[self.species]
+                for category, phenotypes in species_specific_categories.items():
+                    self.df_percentile_rank[category] = self.df_percentile_rank[phenotypes].mean(axis=1)
                 
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['Dysbiosis']*0.5 + self.df_percentile_rank['Diversity']*0.5
             
@@ -666,8 +675,8 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    #path_exp = 'input/PD_dog_one_sample.csv'
-    path_exp = 'input/PC_cat_one_sample.csv'
+    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
