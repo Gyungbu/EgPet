@@ -398,20 +398,20 @@ class EgPetAnalysis:
             species_categories = {
                 'dog': {
                     '순환기질환': ['Heart Failure', 'Hypertension'],
-                    '간 질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
-                    '소화기 질환': ['Exocrine Pancreatic Insufficiency', 'Acute Diarrhea', 'Chronic Enteropathy', 'Acute Pancreatitis'],
-                    '신장 질환': ['Chronic Kidney Disease'],
-                    '대사 질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
-                    '정형 질환': ['Chronic Arthritis'],
-                    '피부 질환': ['Atopic Dermatitis'],
+                    '간질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
+                    '소화기질환': ['Exocrine Pancreatic Insufficiency', 'Acute Diarrhea', 'Chronic Enteropathy', 'Acute Pancreatitis'],
+                    '신장질환': ['Chronic Kidney Disease'],
+                    '대사질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
+                    '정형질환': ['Chronic Arthritis'],
+                    '피부질환': ['Atopic Dermatitis'],
                     '비만': ['Obesity']
                 },
                 'cat': {
                     '순환기질환': ['Heart Failure', 'Hypertension'],
-                    '간 질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
-                    '소화기 질환': ['Chronic Enteropathy', 'Diarrhea', 'Acute Pancreatitis'],
-                    '신장 질환': ['Chronic Kidney Disease'],
-                    '대사 질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
+                    '간질환': ['Primary Sclerosing Cholangitis', 'Liver Cirrhosis'],
+                    '소화기질환': ['Chronic Enteropathy', 'Diarrhea', 'Acute Pancreatitis'],
+                    '신장질환': ['Chronic Kidney Disease'],
+                    '대사질환': ["Diabetes Mellitus", "Cushing's Syndrome"],
                     '비만': ['Obesity']
                 }
             }
@@ -492,9 +492,7 @@ class EgPetAnalysis:
             for i in range(len(self.li_new_sample_name)):
                 self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
             self.df_eval.loc[:,'observed_mean'] = round(self.observed_mean)
-            
-            # Save the output file - df_eval
-            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')              
+                      
         except Exception as e:
             print(str(e))
             rv = False
@@ -666,16 +664,69 @@ class EgPetAnalysis:
             sys.exit()
     
         return rv, rvmsg       
+
+    def RecommendFeed(self):
+        """
+        Recommend the feed according to the scores of Main Categories. 
+
+        Returns:
+        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
+        and message is a string containing a success or error message.
+        """  
+        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
+        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
+        
+        rv = True
+        rvmsg = "Success"
+        
+        try: 
+            if self.species == 'dog':
+                for i in range(len(self.li_new_sample_name)):                
+                    score_liver = self.df_percentile_rank.loc[self.li_new_sample_name[i], '간질환']
+                    score_orthopedic = self.df_percentile_rank.loc[self.li_new_sample_name[i], '정형질환']
+                    score_skin = self.df_percentile_rank.loc[self.li_new_sample_name[i], '피부질환']
+                    score_digestive = self.df_percentile_rank.loc[self.li_new_sample_name[i], '소화기질환']
+                    
+                    avg_score = (score_liver + score_orthopedic + score_skin + score_digestive)/4
+                    
+                    dict_score = {'간': score_liver, '정형': score_orthopedic, '피부': score_skin, '소화기': score_digestive}
+                    
+                    if avg_score > 70:
+                        self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
+                        self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
+                        
+                    else:
+                        li_recommend_feed = [k for k,v in dict_score.items() if min(dict_score.values()) == v]
+                        
+                        if len(li_recommend_feed) == 1:
+                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
+                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
+                        
+                        elif len(li_recommend_feed) == 2:
+                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
+                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = li_recommend_feed[1]
+                            
+            # Save the output file - df_eval
+            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')          
+            
+        except Exception as e:
+            print(str(e))
+            rv = False
+            rvmsg = str(e)
+            print(f"Error has occurred in the {myNAME} process")
+            sys.exit()
+    
+        return rv, rvmsg           
     
 ####################################
 # main
 ####################################
 if __name__ == '__main__':
     
-    #path_exp = 'input/PDmirror_output_dog_1629.csv'
+    path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
@@ -687,6 +738,7 @@ if __name__ == '__main__':
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
     egpetanalysis.CalculateBeneficialMicrobiomeAbundance()
+    egpetanalysis.RecommendFeed()    
     
     print('Analysis Complete')
     
