@@ -707,7 +707,7 @@ class EgPetAnalysis:
                     score_skin = self.df_percentile_rank.loc[self.li_new_sample_name[i], '피부질환']
                     score_digestive = self.df_percentile_rank.loc[self.li_new_sample_name[i], '소화기질환']
                                         
-                    dict_score = {'간': score_liver, '정형': score_orthopedic, '피부': score_skin, '소화기': score_digestive}
+                    dict_score = {'눈물싹싹': score_liver, '관절탄탄': score_orthopedic, '피부싹싹': score_skin, '영양쑥쑥': score_digestive}
                     
                     if (score_liver > 70) & (score_orthopedic > 70) & (score_skin > 70) & (score_digestive > 70):
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
