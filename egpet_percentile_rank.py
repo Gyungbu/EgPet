@@ -711,18 +711,22 @@ class EgPetAnalysis:
                     
                     if (score_liver > 70) & (score_orthopedic > 70) & (score_skin > 70) & (score_digestive > 70):
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
-                        self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
+                        self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
                         
                     else:
                         li_recommend_feed = [k for k,v in dict_score.items() if min(dict_score.values()) == v]
                         
                         if len(li_recommend_feed) == 1:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
-                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
+                            self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
                         
-                        else:
+                        elif len(li_recommend_feed) >= 2:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = li_recommend_feed[1]
+                            
+                        else:
+                            print(f"Error! Check the recommend feed list:{li_recommend_feed}")
+                            
                             
             # Save the output file - df_eval
             self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')          
