@@ -487,6 +487,26 @@ class EgPetAnalysis:
             values = ['E', 'B', 'I', 'D']
 
             self.df_eval['Type'] = np.select(conditions, values)
+
+            
+            # Print the EBID percentages of the samples
+            E_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] >= 60) & (self.df_percentile_rank['Dysbiosis'] >= 60)]
+            B_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] < 60) & (self.df_percentile_rank['Dysbiosis'] >= 60)]
+            D_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] < 60) & (self.df_percentile_rank['Dysbiosis'] < 60)]
+            I_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] >= 60) & (self.df_percentile_rank['Dysbiosis'] < 60)]
+
+            E_percent = len(E_data) / len(self.df_percentile_rank) * 100
+            B_percent = len(B_data) / len(self.df_percentile_rank) * 100
+            D_percent = len(D_data) / len(self.df_percentile_rank) * 100
+            I_percent = len(I_data) / len(self.df_percentile_rank) * 100
+            
+            print(f"<{self.species}>")
+            print("Percentage of samples in E: ", E_percent, '%')
+            print("Percentage of samples in B: ", B_percent, '%') 
+            print("Percentage of samples in D: ", D_percent, '%')
+            print("Percentage of samples in I: ", I_percent, '%')            
+            
+            
             
             # Insert the data - observed_mean
             for i in range(len(self.li_new_sample_name)):
@@ -702,7 +722,7 @@ class EgPetAnalysis:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
                         
-                        elif len(li_recommend_feed) == 2:
+                        else:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = li_recommend_feed[1]
                             
@@ -723,8 +743,8 @@ class EgPetAnalysis:
 ####################################
 if __name__ == '__main__':
     
-    path_exp = 'input/PDmirror_output_dog_1629.csv'
-    #path_exp = 'input/PCmirror_output_cat_1520.csv'
+    #path_exp = 'input/PDmirror_output_dog_1629.csv'
+    path_exp = 'input/PCmirror_output_cat_1520.csv'
     
     #path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
