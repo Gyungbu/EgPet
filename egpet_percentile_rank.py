@@ -706,12 +706,10 @@ class EgPetAnalysis:
                     score_orthopedic = self.df_percentile_rank.loc[self.li_new_sample_name[i], '정형질환']
                     score_skin = self.df_percentile_rank.loc[self.li_new_sample_name[i], '피부질환']
                     score_digestive = self.df_percentile_rank.loc[self.li_new_sample_name[i], '소화기질환']
-                    
-                    avg_score = (score_liver + score_orthopedic + score_skin + score_digestive)/4
-                    
+                                        
                     dict_score = {'간': score_liver, '정형': score_orthopedic, '피부': score_skin, '소화기': score_digestive}
                     
-                    if avg_score > 70:
+                    if (score_liver > 70) & (score_orthopedic > 70) & (score_skin > 70) & (score_digestive > 70):
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = 'None'
                         
@@ -743,8 +741,8 @@ class EgPetAnalysis:
 ####################################
 if __name__ == '__main__':
     
-    #path_exp = 'input/PDmirror_output_dog_1629.csv'
-    path_exp = 'input/PCmirror_output_cat_1520.csv'
+    path_exp = 'input/PDmirror_output_dog_1629.csv'
+    #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
     #path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
