@@ -73,7 +73,7 @@ class EgPetAnalysis:
         #self.path_egpet_scatterplot_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_scatterplot')}.png"
         
         self.path_egpet_percentile_rank_output = f"{self.outdir}/egpet_percentile_rank_{self.species}.csv"
-        self.path_egpet_eval_output = f"{self.outdir}=/egpet_eval_{self.species}.csv"
+        self.path_egpet_eval_output = f"{self.outdir}/egpet_eval_{self.species}.csv"
         self.path_egpet_scatterplot_output = f"{self.outdir}/egpet_scatterplot_{self.species}.png"
         self.path_harmful = f"{self.outdir}/egpet_harmful_{self.species}.csv"
         self.path_beneficial = f"{self.outdir}/egpet_beneficial_{self.species}.csv"
