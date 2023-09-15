@@ -488,7 +488,7 @@ class EgPetAnalysis:
 
             self.df_eval['Type'] = np.select(conditions, values)
 
-            
+            '''
             # Print the EBID percentages of the samples
             E_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] >= 60) & (self.df_percentile_rank['Dysbiosis'] >= 60)]
             B_data = self.df_percentile_rank[(self.df_percentile_rank['Diversity'] < 60) & (self.df_percentile_rank['Dysbiosis'] >= 60)]
@@ -505,7 +505,7 @@ class EgPetAnalysis:
             print("Percentage of samples in B: ", B_percent, '%') 
             print("Percentage of samples in D: ", D_percent, '%')
             print("Percentage of samples in I: ", I_percent, '%')            
-            
+            '''
             
             
             # Insert the data - observed_mean
@@ -685,9 +685,9 @@ class EgPetAnalysis:
     
         return rv, rvmsg       
 
-    def RecommendFeed(self):
+    def RecommendFeedType(self):
         """
-        Recommend the feed according to the scores of Main Categories. 
+        Recommend the Feed Type according to the scores of Main Categories. 
 
         Returns:
         A tuple (success, message), where success is a boolean indicating whether the operation was successful,
@@ -714,7 +714,7 @@ class EgPetAnalysis:
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
                         
                     else:
-                        li_recommend_feed = [k for k,v in dict_score.items() if min(dict_score.values()) == v]
+                        li_recommend_feed = [key for key,val in dict_score.items() if min(dict_score.values()) == val]
                         
                         if len(li_recommend_feed) == 1:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
@@ -745,11 +745,11 @@ class EgPetAnalysis:
 ####################################
 if __name__ == '__main__':
     
-    path_exp = 'input/PDmirror_output_dog_1629.csv'
+    #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
     #path_exp = 'input/PD_dog_one_sample.csv'
-    #path_exp = 'input/PC_cat_one_sample.csv'
+    path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
@@ -760,7 +760,7 @@ if __name__ == '__main__':
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
     egpetanalysis.CalculateBeneficialMicrobiomeAbundance()
-    egpetanalysis.RecommendFeed()    
+    egpetanalysis.RecommendFeedType()    
     
     print('Analysis Complete')
     
