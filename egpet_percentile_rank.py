@@ -472,7 +472,7 @@ class EgPetAnalysis:
             self.df_eval = pd.DataFrame(np.select(conditions, values),
                                         index=self.df_percentile_rank.index,
                                         columns=self.df_percentile_rank.columns)
-            self.df_eval = self.df_eval.loc[:,'Dysbiosis':]
+            #self.df_eval = self.df_eval.loc[:,'Dysbiosis':]
 
             # Type E, B, I, D
             conditions = [
@@ -675,7 +675,11 @@ class EgPetAnalysis:
 
             self.df_beneficial = self.df_beneficial.set_index(keys=['sample_name'], inplace=False, drop=True)           
             self.df_beneficial.to_csv(self.path_beneficial)    
-    
+
+            for i in range(len(self.li_new_sample_name)):
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_beneficial_microbiome'] = len(self.df_beneficial.loc[(self.df_beneficial['abundance'] > 0) & (self.df_beneficial.index == self.li_new_sample_name[i])]) 
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_harmful_microbiome'] = len(self.df_harmful.loc[(self.df_harmful['abundance'] > 0) & (self.df_harmful.index == self.li_new_sample_name[i])]) 
+             
         except Exception as e:
             print(str(e))
             rv = False
@@ -701,6 +705,9 @@ class EgPetAnalysis:
         
         try: 
             if self.species == 'dog':
+                
+                dict_disease = {'눈물싹싹': '간질환', '관절탄탄': '정형질환', '피부싹싹': '피부질환', '영양쑥쑥': '소화기질환'}
+                
                 for i in range(len(self.li_new_sample_name)):                
                     score_liver = self.df_percentile_rank.loc[self.li_new_sample_name[i], '간질환']
                     score_orthopedic = self.df_percentile_rank.loc[self.li_new_sample_name[i], '정형질환']
@@ -709,13 +716,15 @@ class EgPetAnalysis:
                                         
                     dict_score = {'눈물싹싹': score_liver, '관절탄탄': score_orthopedic, '피부싹싹': score_skin, '영양쑥쑥': score_digestive}
                     
+                    li_recommend_feed = [key for key,val in dict_score.items() if min(dict_score.values()) == val]
+                    
+                    self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest'] = dict_disease[li_recommend_feed[0]]
+                                                                                                  
                     if (score_liver > 70) & (score_orthopedic > 70) & (score_skin > 70) & (score_digestive > 70):
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
-                        
-                    else:
-                        li_recommend_feed = [key for key,val in dict_score.items() if min(dict_score.values()) == val]
-                        
+                                                
+                    else:                       
                         if len(li_recommend_feed) == 1:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
