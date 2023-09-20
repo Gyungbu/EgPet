@@ -429,9 +429,6 @@ class EgPetAnalysis:
                         
             # Replace missing values with the string 'None'    
             self.df_percentile_rank = self.df_percentile_rank.fillna('None')
-
-            # Save the output file - Percentile Rank of the samples
-            self.df_percentile_rank.to_csv(self.path_egpet_percentile_rank_output, encoding="utf-8-sig", index_label='serial_number')
             
         except Exception as e:
             print(str(e))
@@ -718,28 +715,32 @@ class EgPetAnalysis:
                     
                     li_recommend_feed = [key for key,val in dict_score.items() if min(dict_score.values()) == val]
                     
-                    self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest'] = dict_disease[li_recommend_feed[0]]
                                                                                                   
                     if (score_liver > 70) & (score_orthopedic > 70) & (score_skin > 70) & (score_digestive > 70):
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = '영양쑥쑥'
                         self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
+                        
+                        self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_first'] = '소화기질환'
+                        self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_second'] = '-'
                                                 
                     else:                       
                         if len(li_recommend_feed) == 1:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = '-'
-                        
+                            
+                            self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_first'] = dict_disease[li_recommend_feed[0]]
+                            self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_second'] = '-'
+                            
                         elif len(li_recommend_feed) >= 2:
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeFirst'] = li_recommend_feed[0]
                             self.df_eval.loc[self.li_new_sample_name[i], 'FeedTypeSecond'] = li_recommend_feed[1]
                             
+                            self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_first'] = dict_disease[li_recommend_feed[0]]
+                            self.df_eval.loc[self.li_new_sample_name[i], 'disease_lowest_second'] = dict_disease[li_recommend_feed[1]]
+                            
                         else:
                             print(f"Error! Check the recommend feed list:{li_recommend_feed}")
-                            
-                            
-            # Save the output file - df_eval
-            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')          
-            
+                                              
         except Exception as e:
             print(str(e))
             rv = False
@@ -749,6 +750,73 @@ class EgPetAnalysis:
     
         return rv, rvmsg           
     
+    def RenameColumns(self):
+        """
+        Rename the Columns
+
+        Returns:
+        A tuple (success, message), where success is a boolean indicating whether the operation was successful,
+        and message is a string containing a success or error message.
+        """  
+        myNAME = self.__class__.__name__+"::"+sys._getframe().f_code.co_name
+        WriteLog(myNAME, "In", type='INFO', fplog=self.__fplog)
+        
+        rv = True
+        rvmsg = "Success"
+        
+        try: 
+            if self.species == 'dog':
+                dict_rename = {'Heart Failure' : '순환기 질환;심부전',
+                 'Hypertension' : '순환기 질환;고혈압',
+                'Primary Sclerosing Cholangitis' : '간 질환;담관염',
+                'Liver Cirrhosis' : '간 질환;간경화',
+                'Exocrine Pancreatic Insufficiency' : '소화기 질환;외분비성 췌장기능부전증',
+                'Acute Diarrhea' : '소화기 질환;급성 설사',
+                'Chronic Enteropathy' : '소화기 질환;만성 장병증',
+                'Acute Pancreatitis' : '소화기 질환;췌장염',
+                'Chronic Kidney Disease' : '신장 질환;만성신부전',
+                'Diabetes Mellitus' : '대사 질환;당뇨병',
+                "Cushing's Syndrome" : '대사 질환;쿠싱 증후군',
+                'Chronic Arthritis' : '정형 질환;만성 관절염',
+                'Atopic Dermatitis' : '피부 질환;아토피성 피부염',
+                'Obesity' : '비만;비만'
+                }
+                
+                self.df_eval.rename(columns = dict_rename, inplace = True)
+                self.df_percentile_rank.rename(columns = dict_rename, inplace = True)   
+            
+            else: 
+                dict_rename = {'Heart Failure' : '순환기 질환;심부전',
+                 'Hypertension' : '순환기 질환;고혈압',
+                'Primary Sclerosing Cholangitis' : '간 질환;담관염',
+                'Liver Cirrhosis' : '간 질환;간경화',
+                'Chronic Enteropathy' : '소화기 질환;만성 장병증',
+                'Diarrhea' : '소화기 질환;설사',                                              
+                'Acute Pancreatitis' : '소화기 질환;췌장염',
+                'Chronic Kidney Disease' : '신장 질환;만성신부전',
+                'Diabetes Mellitus' : '대사 질환;당뇨병',
+                "Cushing's Syndrome" : '대사 질환;쿠싱 증후군',
+                'Obesity' : '비만;비만'
+                }        
+                
+                self.df_eval.rename(columns = dict_rename, inplace = True)
+                self.df_percentile_rank.rename(columns = dict_rename, inplace = True)          
+
+            # Save the output file - df_eval
+            self.df_eval.to_csv(self.path_egpet_eval_output, encoding="utf-8-sig", index_label='serial_number')       
+            
+            # Save the output file - Percentile Rank of the samples
+            self.df_percentile_rank.to_csv(self.path_egpet_percentile_rank_output, encoding="utf-8-sig", index_label='serial_number')            
+            
+        except Exception as e:
+            print(str(e))
+            rv = False
+            rvmsg = str(e)
+            print(f"Error has occurred in the {myNAME} process")
+            sys.exit()
+    
+        return rv, rvmsg 
+    
 ####################################
 # main
 ####################################
@@ -757,8 +825,8 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    #path_exp = 'input/PD_dog_one_sample.csv'
-    path_exp = 'input/PC_cat_one_sample.csv'
+    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PC_cat_one_sample.csv'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
@@ -769,7 +837,8 @@ if __name__ == '__main__':
     egpetanalysis.EvaluatePercentileRank()    
     egpetanalysis.CalculateHarmfulMicrobiomeAbundance()
     egpetanalysis.CalculateBeneficialMicrobiomeAbundance()
-    egpetanalysis.RecommendFeedType()    
-    
+    egpetanalysis.RecommendFeedType()  
+    egpetanalysis.RenameColumns()    
+        
     print('Analysis Complete')
     
