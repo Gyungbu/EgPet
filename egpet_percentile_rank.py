@@ -507,8 +507,8 @@ class EgPetAnalysis:
             
             # Insert the data - observed_mean
             for i in range(len(self.li_new_sample_name)):
-                self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = self.li_observed[i]
-            self.df_eval.loc[:,'observed_mean'] = round(self.observed_mean)
+                self.df_eval.loc[self.li_new_sample_name[i], 'num_total_species'] = int(self.li_observed[i])
+            self.df_eval.loc[:,'observed_mean'] = int(self.observed_mean)
                       
         except Exception as e:
             print(str(e))
@@ -674,8 +674,8 @@ class EgPetAnalysis:
             self.df_beneficial.to_csv(self.path_beneficial)    
 
             for i in range(len(self.li_new_sample_name)):
-                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_beneficial_microbiome'] = len(self.df_beneficial.loc[(self.df_beneficial['abundance'] > 0) & (self.df_beneficial.index == self.li_new_sample_name[i])]) 
-                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_harmful_microbiome'] = len(self.df_harmful.loc[(self.df_harmful['abundance'] > 0) & (self.df_harmful.index == self.li_new_sample_name[i])]) 
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_beneficial_microbiome'] = int(len(self.df_beneficial.loc[(self.df_beneficial['abundance'] > 0) & (self.df_beneficial.index == self.li_new_sample_name[i])])) 
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_harmful_microbiome'] = int(len(self.df_harmful.loc[(self.df_harmful['abundance'] > 0) & (self.df_harmful.index == self.li_new_sample_name[i])])) 
              
         except Exception as e:
             print(str(e))
