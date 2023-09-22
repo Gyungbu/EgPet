@@ -101,6 +101,7 @@ class EgPetAnalysis:
         self.li_microbiome = None
         
         self.observed_mean = None
+        self.threshold = 0.00005
 
     # Load the DB file
     # df_beta : Data frame of of Phenotype-Microbiome information
@@ -674,8 +675,8 @@ class EgPetAnalysis:
             self.df_beneficial.to_csv(self.path_beneficial)    
 
             for i in range(len(self.li_new_sample_name)):
-                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_beneficial_microbiome'] = int(len(self.df_beneficial.loc[(self.df_beneficial['abundance'] > 0) & (self.df_beneficial.index == self.li_new_sample_name[i])])) 
-                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_harmful_microbiome'] = int(len(self.df_harmful.loc[(self.df_harmful['abundance'] > 0) & (self.df_harmful.index == self.li_new_sample_name[i])])) 
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_beneficial_microbiome'] = int(len(self.df_beneficial.loc[(self.df_beneficial['abundance'] > self.threshold) & (self.df_beneficial.index == self.li_new_sample_name[i])])) 
+                self.df_eval.loc[self.li_new_sample_name[i],'num_detected_harmful_microbiome'] = int(len(self.df_harmful.loc[(self.df_harmful['abundance'] > self.threshold) & (self.df_harmful.index == self.li_new_sample_name[i])])) 
              
         except Exception as e:
             print(str(e))
