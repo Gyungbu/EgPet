@@ -1,2 +1,2 @@
 ﻿serial_number,순환기 질환;심부전,순환기 질환;고혈압,간 질환;담관염,간 질환;간경화,소화기 질환;외분비성 췌장기능부전증,소화기 질환;급성 설사,소화기 질환;만성 장병증,소화기 질환;췌장염,신장 질환;만성신부전,대사 질환;당뇨병,대사 질환;쿠싱 증후군,정형 질환;만성 관절염,피부 질환;아토피성 피부염,비만;비만,Dysbiosis,Diversity,DysbiosisHarmful,DysbiosisBeneficial,순환기질환,간질환,소화기질환,신장질환,대사질환,정형질환,피부질환,비만,TotalScore,Type,num_total_species,observed_mean,num_detected_beneficial_microbiome,num_detected_harmful_microbiome,FeedTypeFirst,FeedTypeSecond,disease_lowest_first,disease_lowest_second
-20230210_BC04,나쁨,나쁨,나쁨,양호,나쁨,양호,나쁨,양호,나쁨,나쁨,나쁨,나쁨,보통,주의,보통,나쁨,주의,보통,나쁨,주의,주의,나쁨,나쁨,나쁨,보통,주의,주의,D,195.0,98,1.0,2.0,관절탄탄,-,정형질환,-
+20230210_BC04,나쁨,나쁨,나쁨,양호,나쁨,양호,나쁨,양호,나쁨,나쁨,나쁨,나쁨,보통,주의,보통,나쁨,주의,보통,나쁨,주의,주의,나쁨,나쁨,나쁨,보통,주의,주의,D,195.0,98,2.0,3.0,관절탄탄,-,정형질환,-

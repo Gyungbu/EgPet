@@ -101,7 +101,7 @@ class EgPetAnalysis:
         self.li_microbiome = None
         
         self.observed_mean = None
-        self.threshold = 0.00005
+        self.threshold = 0.00001
 
     # Load the DB file
     # df_beta : Data frame of of Phenotype-Microbiome information
