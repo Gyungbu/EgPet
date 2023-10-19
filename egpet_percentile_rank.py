@@ -46,9 +46,9 @@ class EgPetAnalysis:
         self.path_exp = path_exp
         self.species = None
         self.__fplog=fplog
-        if( os.path.basename(self.path_exp).startswith('PD') ):
+        if( os.path.basename(self.path_exp).startswith('PD') ) | ( os.path.basename(self.path_exp).split("_")[-1].startswith('PD') ):
             self.species = 'dog'
-        elif( os.path.basename(self.path_exp).startswith('PC') ):
+        elif( os.path.basename(self.path_exp).startswith('PC') ) | ( os.path.basename(self.path_exp).split("_")[-1].startswith('PC') ):
             self.species = 'cat'
 
         if( self.species is None ):
@@ -123,7 +123,6 @@ class EgPetAnalysis:
         try:
             self.df_beta = pd.read_excel(self.path_ref, sheet_name = f"phenotype_{self.species}")
             self.df_dysbiosis = pd.read_excel(self.path_ref, sheet_name = f"dysbiosis_{self.species}")
-            self.df_exp = pd.read_csv(self.path_exp, encoding='cp949')
             self.df_mrs_db = pd.read_csv(self.path_mrs_db, index_col=0, encoding='cp949') 
             self.df_percentile_rank_db = pd.read_csv(self.path_percentile_rank_db, encoding='cp949')
             self.df_db = pd.read_csv(self.path_db, encoding='cp949')
@@ -135,8 +134,36 @@ class EgPetAnalysis:
             self.df_dysbiosis.rename(columns = {"NCBI name": "ncbi_name", "MIrROR name": "microbiome", "Health sign": "beta", "subtract": "microbiome_subtract"}, inplace=True)
             self.df_dysbiosis = self.df_dysbiosis[["ncbi_name", "microbiome", "beta", "microbiome_subtract"]]
             self.df_dysbiosis['beta'] = self.df_dysbiosis['beta'].replace({'유해': 1, '유익': -1})
-            
+
+            if self.path_exp.split(".")[-1] == 'txt':
+                self.df_exp = pd.read_csv(self.path_exp, sep='\t', header=None)
+                
+                if len(self.df_exp.columns) == 2:     
+                    sample_name = self.path_exp.split("_")[-1].split(".")[0]
+                    self.df_exp.columns=["taxa", sample_name]
+                
+                elif len(self.df_exp.columns) == 4:
+                    sample_name = self.df_exp.iloc[0,0]
+                    observed = self.df_exp.iloc[1,2]
+                    diversity = self.df_exp.iloc[0,3]
+
+                    self.df_exp = self.df_exp.iloc[0:,[1,3]]              
+                    self.df_exp.columns=["taxa", sample_name]
+                    self.df_exp.loc[self.df_exp["taxa"] == 'observed', sample_name] = observed
+                    self.df_exp.loc[self.df_exp["taxa"] == 'diversity', sample_name] = diversity
+                    
+                else:
+                    print("Check the proportion input file!")
+                
+            else:                    
+                try:
+                    self.df_exp = pd.read_csv(self.path_exp)
+                
+                except:
+                    print("Check the proportion input file!")
+                    
             print(self.df_exp)
+            
             # Delete the diversity, observed rows
             if (list(self.df_exp['taxa'][0:2]) == ['diversity', 'observed']) & (list(self.df_db['taxa'][0:2]) == ['diversity', 'observed']):
                 self.li_diversity = list(self.df_exp.iloc[0,1:]) # li_diversity : Alpha-Diversity list 
@@ -826,8 +853,10 @@ if __name__ == '__main__':
     #path_exp = 'input/PDmirror_output_dog_1629.csv'
     #path_exp = 'input/PCmirror_output_cat_1520.csv'
     
-    path_exp = 'input/PD_dog_one_sample.csv'
+    #path_exp = 'input/PD_dog_one_sample.csv'
     #path_exp = 'input/PC_cat_one_sample.csv'
+    
+    path_exp = 'input/BC95_PD23-ST03-NGS-8X83.txt'
     
     egpetanalysis = EgPetAnalysis(path_exp)
     egpetanalysis.ReadDB()
