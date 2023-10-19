@@ -162,6 +162,10 @@ class EgPetAnalysis:
                 except:
                     print("Check the proportion input file!")
                     
+            # Delete CST type row if it exists - df_exp
+            if (self.df_exp['taxa']=='subCST').any():
+                self.df_exp.drop(self.df_exp[(self.df_exp['taxa'] == 'subCST')].index, inplace=True)     
+                
             print(self.df_exp)
             
             # Delete the diversity, observed rows
