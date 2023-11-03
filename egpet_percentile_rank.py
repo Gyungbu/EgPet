@@ -422,8 +422,8 @@ class EgPetAnalysis:
             # Outliers
             # Replace percentile ranks that are less than or equal to 5 with 5, and those that are greater than or equal to 95 with 95
             for i in range(len(self.li_phenotype)):
-                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5.0
-                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95.0     
+                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]<=5, self.li_phenotype[i]] = 5
+                self.df_percentile_rank.loc[self.df_percentile_rank[self.li_phenotype[i]]>=95, self.li_phenotype[i]] = 95 
                 
                 
             # Define a dictionary to map species to their specific category and corresponding phenotypes
@@ -457,7 +457,7 @@ class EgPetAnalysis:
             self.df_percentile_rank['TotalScore'] = self.df_percentile_rank['Dysbiosis']*0.5 + self.df_percentile_rank['Diversity']*0.5
             
             for col in self.df_percentile_rank:
-                self.df_percentile_rank[col] = self.df_percentile_rank[col].astype(float).round(1)
+                self.df_percentile_rank[col] = self.df_percentile_rank[col].astype(float).round()
                         
             # Replace missing values with the string 'None'    
             self.df_percentile_rank = self.df_percentile_rank.fillna('None')
