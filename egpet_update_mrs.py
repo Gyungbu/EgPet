@@ -74,11 +74,11 @@ class EgPetUpdateMRS:
         
         if self.species in ['dog', 'cat']:  
             curdir = os.path.abspath('')
-            self.path_ref = f"{curdir}/input/EGpet_references.xlsx"
-            self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
-            self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
-            self.path_hist = f"{curdir}/output/mrs_hist_{self.species}.png"
-            self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
+            self.path_ref = f"{curdir}/input/EGpetPRO_references.xlsx"
+            self.path_db = f"{curdir}/input/EGpetPRO_db_abundance_{self.species}.csv"
+            self.path_mrs_db = f"{curdir}/input/EGpetPRO_mrs_db_{self.species}.csv"
+            self.path_hist = f"{curdir}/output/EGpetPRO_mrs_hist_{self.species}.png"
+            self.path_percentile_rank_db = f"{curdir}/input/EGpetPRO_percentile_rank_db_{self.species}.csv"
 
             self.df_beta = None
             self.df_db = None

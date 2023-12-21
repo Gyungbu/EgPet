@@ -57,10 +57,10 @@ class EgPetAnalysis:
 
         ## Reference csv files
         curdir = os.path.dirname(os.path.abspath(__file__))
-        self.path_ref = f"{curdir}/input/EGpet_references.xlsx" 
-        self.path_mrs_db = f"{curdir}/input/egpet_mrs_db_{self.species}.csv"
-        self.path_percentile_rank_db = f"{curdir}/input/egpet_percentile_rank_db_{self.species}.csv"
-        self.path_db = f"{curdir}/input/db_abundance_{self.species}.csv"
+        self.path_ref = f"{curdir}/input/EGpetPRO_references.xlsx" 
+        self.path_mrs_db = f"{curdir}/input/EGpetPRO_mrs_db_{self.species}.csv"
+        self.path_percentile_rank_db = f"{curdir}/input/EGpetPRO_percentile_rank_db_{self.species}.csv"
+        self.path_db = f"{curdir}/input/EGpetPRO_db_abundance_{self.species}.csv"
         
         ###output
         if( outdir is not None ):
@@ -72,11 +72,11 @@ class EgPetAnalysis:
         #self.path_egpet_eval_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_eval')}.csv"
         #self.path_egpet_scatterplot_output = f"{self.outdir}/{os.path.basename(self.path_exp).replace('_report.txt','_scatterplot')}.png"
         
-        self.path_egpet_percentile_rank_output = f"{self.outdir}/egpet_percentile_rank_{self.species}.csv"
-        self.path_egpet_eval_output = f"{self.outdir}/egpet_eval_{self.species}.csv"
-        self.path_egpet_scatterplot_output = f"{self.outdir}/egpet_scatterplot_{self.species}.png"
-        self.path_harmful = f"{self.outdir}/egpet_harmful_{self.species}.csv"
-        self.path_beneficial = f"{self.outdir}/egpet_beneficial_{self.species}.csv"
+        self.path_egpet_percentile_rank_output = f"{self.outdir}/EGpetPRO_percentile_rank_{self.species}.csv"
+        self.path_egpet_eval_output = f"{self.outdir}/EGpetPRO_eval_{self.species}.csv"
+        self.path_egpet_scatterplot_output = f"{self.outdir}/EGpetPRO_scatterplot_{self.species}.png"
+        self.path_harmful = f"{self.outdir}/EGpetPRO_harmful_{self.species}.csv"
+        self.path_beneficial = f"{self.outdir}/EGpetPRO_beneficial_{self.species}.csv"
 
         ## Dataframes read by the ReadDB process
         self.df_beta = None
@@ -608,20 +608,20 @@ class EgPetAnalysis:
 
                                 if len(self.df_db[condition_sub]) > 0:
                                     abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]                           
-                        json_abundance.append({"sample_name" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
+                        json_abundance.append({"serial_number" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
 
             df_abundance = pd.DataFrame.from_dict(json_abundance)   
 
-            df_abundance = df_abundance.drop_duplicates(['sample_name', 'ncbi_name'], keep='last')
+            df_abundance = df_abundance.drop_duplicates(['serial_number', 'ncbi_name'], keep='last')
                
-            self.df_harmful = pd.DataFrame(columns = ["sample_name", "ncbi_name", "abundance", "abundance_mean"])
+            self.df_harmful = pd.DataFrame(columns = ["serial_number", "ncbi_name", "abundance", "abundance_mean"])
 
             for i in range(len(self.li_new_sample_name)):
-                condition = (df_abundance.sample_name == self.li_new_sample_name[i])
+                condition = (df_abundance.serial_number == self.li_new_sample_name[i])
                 df_new = df_abundance[condition].sort_values(by=['abundance_mean'], ascending=False)
                 self.df_harmful = pd.concat([self.df_harmful,df_new])
                
-            self.df_harmful = self.df_harmful.set_index(keys=['sample_name'], inplace=False, drop=True)           
+            self.df_harmful = self.df_harmful.set_index(keys=['serial_number'], inplace=False, drop=True)           
             self.df_harmful.to_csv(self.path_harmful)   
              
         except Exception as e:
@@ -689,20 +689,20 @@ class EgPetAnalysis:
 
                                 if len(self.df_db[condition_sub]) > 0:
                                     abundance_mean -= self.df_db[condition_sub].mean(axis=1, numeric_only=True).values[0]                           
-                        json_abundance.append({"sample_name" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
+                        json_abundance.append({"serial_number" : self.li_new_sample_name[i], "ncbi_name" : self.li_ncbi_name[j], "abundance" : abundance, "abundance_mean" : abundance_mean})
 
             df_abundance = pd.DataFrame.from_dict(json_abundance)   
 
-            df_abundance = df_abundance.drop_duplicates(['sample_name', 'ncbi_name'], keep='last')
+            df_abundance = df_abundance.drop_duplicates(['serial_number', 'ncbi_name'], keep='last')
 
-            self.df_beneficial = pd.DataFrame(columns = ["sample_name", "ncbi_name", "abundance", "abundance_mean"])
+            self.df_beneficial = pd.DataFrame(columns = ["serial_number", "ncbi_name", "abundance", "abundance_mean"])
 
             for i in range(len(self.li_new_sample_name)):
-                condition = (df_abundance.sample_name == self.li_new_sample_name[i])
+                condition = (df_abundance.serial_number == self.li_new_sample_name[i])
                 df_new = df_abundance[condition].sort_values(by=['abundance_mean'], ascending=False)
                 self.df_beneficial = pd.concat([self.df_beneficial,df_new])
 
-            self.df_beneficial = self.df_beneficial.set_index(keys=['sample_name'], inplace=False, drop=True)           
+            self.df_beneficial = self.df_beneficial.set_index(keys=['serial_number'], inplace=False, drop=True)           
             self.df_beneficial.to_csv(self.path_beneficial)    
 
             for i in range(len(self.li_new_sample_name)):

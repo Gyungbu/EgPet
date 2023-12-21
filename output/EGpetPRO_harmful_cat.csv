@@ -1,4 +1,4 @@
-sample_name,ncbi_name,abundance,abundance_mean
+serial_number,ncbi_name,abundance,abundance_mean
 20230210_BC19,Escherichia coli,0.0,0.008387276916365288
 20230210_BC19,Clostridium perfringens,0.0,0.006515874335081068
 20230210_BC19,Clostridioides difficile,0.000416146,0.0018859083674968862

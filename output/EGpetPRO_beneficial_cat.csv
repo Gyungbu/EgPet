@@ -1,4 +1,4 @@
-sample_name,ncbi_name,abundance,abundance_mean
+serial_number,ncbi_name,abundance,abundance_mean
 20230210_BC19,Faecalibacterium prausnitzii,0.082521848,0.025932610397428696
 20230210_BC19,Bifidobacterium longum,0.0,0.0033009828438504184
 20230210_BC19,Bifidobacterium animalis,0.0,0.00011252342057115842

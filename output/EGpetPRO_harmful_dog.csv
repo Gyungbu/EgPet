@@ -1,4 +1,4 @@
-sample_name,ncbi_name,abundance,abundance_mean
+serial_number,ncbi_name,abundance,abundance_mean
 PD23-ST03-NGS-8X83,Escherichia coli,0.010198526476245699,0.01979153131276734
 PD23-ST03-NGS-8X83,Clostridioides difficile,0.0001088810655826,0.007889322186419169
 PD23-ST03-NGS-8X83,Clostridium perfringens,0.0015969222952128,0.0061871349759447586

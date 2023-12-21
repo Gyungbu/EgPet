@@ -1,4 +1,4 @@
-sample_name,ncbi_name,abundance,abundance_mean
+serial_number,ncbi_name,abundance,abundance_mean
 PD23-ST03-NGS-8X83,Faecalibacterium prausnitzii,0.0722244401698544,0.01537863024840597
 PD23-ST03-NGS-8X83,Bifidobacterium longum,3.6293688527565054e-05,0.0011356265692493222
 PD23-ST03-NGS-8X83,Lactobacillus rhamnosus,0.0,0.0003392860782458649
